@@ -1,0 +1,43 @@
+# Setup email forwarding for account emails
+# -----------------------------------------
+
+echo -e "bastian@getkirby.com\nlukas@getkirby.com" > ~/.qmail
+
+# Configure the web server
+# ------------------------
+
+uberspace web domain add demo.getkirby.com
+uberspace tools version use php 7.4
+uberspace web log php_error enable
+
+# Install Composer
+# ----------------
+
+EXPECTED_SIGNATURE="$(wget -q -O - https://composer.github.io/installer.sig)"
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]
+then
+    >&2 echo 'ERROR: Invalid Composer installer signature'
+    rm composer-setup.php
+    exit 1
+fi
+
+php composer-setup.php --quiet --install-dir="$HOME/bin" --filename="composer"
+rm composer-setup.php
+
+# Setup the Demo tool
+# -------------------
+
+git clone https://github.com/getkirby/demo.getkirby.com /var/www/virtual/$USER/demo
+rmdir /var/www/virtual/$USER/html
+ln -s /var/www/virtual/$USER/demo/public /var/www/virtual/$USER/html
+
+# Automatic cleanup every 10 minutes
+cron="*/10 * * * * /var/www/virtual/$USER/demo/bin/demo_cleanup"
+(crontab -l; echo "$cron") | crontab -
+
+# Helpful aliases
+ln -s /var/www/virtual/$USER/demo ~/demo
+echo 'export PATH="$PATH:/var/www/virtual/$USER/demo/bin"' >> ~/.bashrc

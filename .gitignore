@@ -1,0 +1,11 @@
+# OS
+.DS_Store
+
+# vendor cruft
+/vendor
+
+# dynamic/temporary files
+/data/*
+/public/*
+!/public/.htaccess
+!/public/index.php

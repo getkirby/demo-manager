@@ -1,0 +1,28 @@
+{
+    "name": "getkirby/demo.getkirby.com",
+    "description": "Demo manager at https://demo.getkirby.com",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kirby Team",
+            "email": "support@getkirby.com",
+            "homepage": "https://getkirby.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "getkirby/cms": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kirby\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "extra": {
+        "kirby-cms-path": false
+    }
+}

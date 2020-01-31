@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+namespace Kirby\Demo;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+(new Demo)->cleanup();
