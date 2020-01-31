@@ -89,7 +89,7 @@ class Instance
             return $created . ($created === 1)? ' second' : ' seconds';
         }
 
-        $string = ''
+        $string = '';
         if ($created >= 3600) {
             $string .= $hours . ($hours === 1)? ' hour and ' : ' hours and ';
         }
