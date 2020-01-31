@@ -82,19 +82,19 @@ class Instance
     public function createdHuman(): string
     {
         $created = time() - $this->created();
-        $hours   = floor($created / 3600);
-        $minutes = round(($created / 60) % 60);
+        $hours   = (int)floor($created / 3600);
+        $minutes = (int)round(($created / 60) % 60);
 
         if ($created < 60) {
-            return $created . ($created === 1)? ' second' : ' seconds';
+            return $created . (($created === 1)? ' second' : ' seconds');
         }
 
         $string = '';
         if ($created >= 3600) {
-            $string .= $hours . ($hours === 1)? ' hour and ' : ' hours and ';
+            $string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
         }
 
-        return $string . $minutes . ($minutes === 1)? ' minute' : 'minutes';
+        return $string . $minutes . (($minutes === 1)? ' minute' : ' minutes');
     }
 
     /**
@@ -168,19 +168,19 @@ class Instance
     protected static function expiryTimeToHuman(int $timestamp): string
     {
         $expiry  = $timestamp - time();
-        $hours   = floor($expiry / 3600);
-        $minutes = round(($expiry / 60) % 60);
+        $hours   = (int)floor($expiry / 3600);
+        $minutes = (int)round(($expiry / 60) % 60);
 
         if ($expiry <= 0) {
             return 'any time now';
         }
 
         $string = 'in roughly ';
-        if ($created >= 3600) {
-            $string .= $hours . ($hours === 1)? ' hour and ' : ' hours and ';
+        if ($expiry >= 3600) {
+            $string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
         }
 
-        return $string . $minutes . ($minutes === 1)? ' minute' : 'minutes';
+        return $string . $minutes . (($minutes === 1)? ' minute' : ' minutes');
     }
 
     /**
