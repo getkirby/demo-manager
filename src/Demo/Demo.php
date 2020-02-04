@@ -2,6 +2,7 @@
 
 namespace Kirby\Demo;
 
+use Closure;
 use Kirby\Exception\Exception;
 use Kirby\Http\Request;
 use Kirby\Http\Response;
@@ -115,14 +116,9 @@ class Demo
             $this->root() . '/data/template'
         );
 
-        // fetch dependencies
-        $buildConfig = require($this->root() . '/data/template/.build.php');
-        foreach ($buildConfig['dependencies'] ?? [] as $path => $dependency) {
-            $this->downloadZip($dependency['url'], $dependency['dir'], $this->root() . '/data/template/' . $path);
-        }
-
         // run the post-install hook of the Demokit
-        if (isset($buildConfig['hook']) === true && is_callable($buildConfig['hook']) === true) {
+        $buildConfig = require($this->root() . '/data/template/.build.php');
+        if (isset($buildConfig['hook']) === true && $buildConfig['hook'] instanceof Closure) {
             $previousDir = getcwd();
             chdir($this->root() . '/data/template');
 
