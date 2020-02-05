@@ -220,7 +220,7 @@ class Instances
         $status = 'OK';
         if ($numActive >= $this->demo()->instanceLimit()) {
             $status = 'CRITICAL:overload';
-        if ($numActive >= $this->demo()->instanceLimit() * 0.7) {
+        } elseif ($numActive >= $this->demo()->instanceLimit() * 0.7) {
             $status = 'WARN:overload-nearing';
         } elseif ($oldest && time() - $oldest->created() > $this->demo()->expiryAbsolute() + 30 * 60) {
             $status = 'WARN:too-old-expired';
