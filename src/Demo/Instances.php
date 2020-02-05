@@ -199,25 +199,44 @@ class Instances
      */
     public function stats(): array
     {
+        // base resources
         $sequence  = $this->database->table('sqlite_sequence');
         $instances = $this->database->table('instances');
         $all       = $this->all()->sortBy('created', SORT_ASC);
 
+        // collect stats
         $numTotal   = $sequence->select('SEQ')->first();
         $numActive  = $all->count();
         $numExpired = $all->filterBy('hasExpired', '==', true)->count();
         $numClients = (int)$this->database
                                 ->query('SELECT COUNT(DISTINCT ipHash) as num FROM instances')
                                 ->first()->num();
+        $clientAvg  = ($numClients > 0)? $numActive / $numClients : null;
         $oldest     = $all->first();
         $latest     = $all->last();
 
+        // determine the health status and report it to find potential bugs;
+        // ordered by severity!
+        $status = 'OK';
+        if ($numActive >= $this->demo()->instanceLimit()) {
+            $status = 'CRITICAL:overload';
+        if ($numActive >= $this->demo()->instanceLimit() * 0.7) {
+            $status = 'WARN:overload-nearing';
+        } elseif ($oldest && time() - $oldest->created() > $this->demo()->expiryAbsolute() + 30 * 60) {
+            $status = 'WARN:too-old-expired';
+        } elseif ($numExpired / $numActive > 0.1 || $numExpired > 20) {
+            $status = 'WARN:too-many-expired';
+        } elseif ($clientAvg && $clientAvg > $this->demo()->maxInstancesPerClient()) {
+            $status = 'WARN:too-many-per-client';
+        }
+
         return [
+            'status'     => $status,
             'numTotal'   => ($numTotal)? (int)$numTotal->seq() : 0,
             'numActive'  => $numActive,
             'numExpired' => $numExpired,
             'numClients' => $numClients,
-            'clientAvg'  => ($numClients > 0)? $numActive / $numClients : null,
+            'clientAvg'  => $clientAvg,
             'oldest'     => ($oldest)? date('r', $oldest->created()) : null,
             'latest'     => ($latest)? date('r', $latest->created()) : null
         ];
