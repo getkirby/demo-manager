@@ -40,6 +40,13 @@ class Demo
     protected $expiryInactivity = 60 * 60;
 
     /**
+     * Absolute maximum number of simultaneously active instances
+     *
+     * @var integer
+     */
+    protected $instanceLimit = 300;
+
+    /**
      * Instance manager object
      *
      * @var \Kirby\Demo\Instances
@@ -205,6 +212,16 @@ class Demo
     }
 
     /**
+     * Returns the absolute maximum number of simultaneously active instances
+     *
+     * @return int
+     */
+    public function instanceLimit(): int
+    {
+        return $this->instanceLimit;
+    }
+
+    /**
      * Returns the instance manager
      *
      * @return \Kirby\Demo\Instances
@@ -250,6 +267,11 @@ class Demo
         try {
             if ($path === '' && $method === 'POST') {
                 // create a new instance
+
+                // check if there are too many active instances on this server
+                if ($this->instances()->count() >= $this->instanceLimit()) {
+                    return Response::redirect('https://getkirby.com/try/error:overload', 302);
+                }
 
                 // check if the current client already has too many active instances
                 $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
@@ -317,6 +339,18 @@ class Demo
     protected function setExpiryAbsolute(int $expiryAbsolute)
     {
         $this->expiryAbsolute = $expiryAbsolute;
+        return $this;
+    }
+
+    /**
+     * Sets the absolute maximum number of simultaneously active instances
+     *
+     * @param int $instanceLimit
+     * @return self
+     */
+    protected function setInstanceLimit(int $instanceLimit)
+    {
+        $this->instanceLimit = $instanceLimit;
         return $this;
     }
 
