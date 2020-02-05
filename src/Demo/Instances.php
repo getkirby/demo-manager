@@ -81,6 +81,24 @@ class Instances
     }
 
     /**
+     * Returns the number of currently active instances
+     * optionally filtered by a WHERE clause
+     *
+     * @param ...mixed Optional WHERE clause
+     * @return int
+     */
+    public function count(): int
+    {
+        $query = $this->database->table('instances');
+
+        if (func_num_args() > 0) {
+            $query = $query->where(...func_get_args());
+        }
+
+        return $query->count();
+    }
+
+    /**
      * Creates a new instance
      *
      * @return \Kirby\Demo\Instance
@@ -172,19 +190,6 @@ class Instances
     public function lock(): void
     {
         $this->database->execute('BEGIN IMMEDIATE TRANSACTION');
-    }
-
-    /**
-     * Returns the number of currently active instances
-     * of the current client
-     *
-     * @return int
-     */
-    public function numActiveOfClient(): int
-    {
-        return $this->database->table('instances')
-                              ->where(['ipHash' => static::ipHash()])
-                              ->count();
     }
 
     /**

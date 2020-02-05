@@ -252,7 +252,8 @@ class Demo
                 // create a new instance
 
                 // check if the current client already has too many active instances
-                if ($this->instances()->numActiveOfClient() >= $this->maxInstancesPerClient()) {
+                $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
+                if ($countCurrentClient >= $this->maxInstancesPerClient()) {
                     return Response::redirect('https://getkirby.com/try/error:rate-limit', 302);
                 }
 
