@@ -175,7 +175,7 @@ class Instance
             return 'any time now';
         }
 
-        $string = 'in roughly ';
+        $string = 'in ';
         if ($expiry >= 3600) {
             $string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
         }
