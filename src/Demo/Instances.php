@@ -224,7 +224,7 @@ class Instances
             $status = 'WARN:overload-nearing';
         } elseif ($oldest && time() - $oldest->created() > $this->demo()->expiryAbsolute() + 30 * 60) {
             $status = 'WARN:too-old-expired';
-        } elseif ($numExpired / $numActive > 0.1 || $numExpired > 20) {
+        } elseif ($numExpired / $numActive > 0.1 && $numExpired > 10) {
             $status = 'WARN:too-many-expired';
         } elseif ($clientAvg && $clientAvg > $this->demo()->maxInstancesPerClient()) {
             $status = 'WARN:too-many-per-client';
