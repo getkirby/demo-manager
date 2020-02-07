@@ -76,22 +76,15 @@ class Demo
         Dir::remove($this->config()->root() . '/data/template');
 
         // initialize the template with the Demokit
+        $root = $this->config()->root() . '/data/template';
         $this->downloadZip(
             'https://github.com/getkirby/demokit/archive/master.zip',
             'demokit-master',
-            $this->config()->root() . '/data/template'
+            $root
         );
 
         // run the post-install hook of the Demokit
-        $buildConfig = require($this->config()->root() . '/data/template/.build.php');
-        if (isset($buildConfig['hook']) === true && $buildConfig['hook'] instanceof Closure) {
-            $previousDir = getcwd();
-            chdir($this->config()->root() . '/data/template');
-
-            $buildConfig['hook']($this);
-
-            chdir($previousDir);
-        }
+        $this->runHook($root, 'build:after');
 
         // instances can now be created again
         $this->lock()->releaseLock();
@@ -260,6 +253,28 @@ class Demo
 
             error_log($e);
             return Response::redirect('https://getkirby.com/try/error:unexpected', 302);
+        }
+    }
+
+    /**
+     * Runs a hook on an instance or the template
+     *
+     * @param string $root Root of the template/instance
+     * @param string $type Hook type
+     * @param mixed ...$args Additional hook arguments
+     * @return void
+     */
+    public function runHook($root, $type, ...$args): void
+    {
+        $buildConfig = @include($root . '/.build.php') ?? [];
+
+        if (isset($buildConfig[$type]) === true && $buildConfig[$type] instanceof Closure) {
+            $previousDir = getcwd();
+            chdir($this->config()->root() . '/data/template');
+
+            $buildConfig[$type]($this, ...$args);
+
+            chdir($previousDir);
         }
     }
 

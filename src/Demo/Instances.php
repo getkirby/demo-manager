@@ -128,10 +128,11 @@ class Instances
         $this->database->execute('END TRANSACTION');
 
         // create the actual instance
+        $root = $this->demo()->config()->root() . '/public/' . $name;
         exec(
             'cp -r ' .
             escapeshellarg($this->demo()->config()->root() . '/data/template') . ' ' .
-            escapeshellarg($this->demo()->config()->root() . '/public/' . $name),
+            escapeshellarg($root),
             $output,
             $return
         );
@@ -139,12 +140,16 @@ class Instances
             throw new Exception('Could not copy instance directory, got return value ' . $return);
         }
 
+        $props['id'] = $id;
+        $props['instances'] = $this;
+        $instance = new Instance($props);
+
+        $this->demo()->runHook($root, 'create:after', $instance);
+
         // the template can now be rebuilt again
         $this->demo()->lock()->releaseLock();
 
-        $props['id'] = $id;
-        $props['instances'] = $this;
-        return new Instance($props);
+        return $instance;
     }
 
     /**
