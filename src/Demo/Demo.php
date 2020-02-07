@@ -54,6 +54,13 @@ class Demo
     protected $instances;
 
     /**
+     * Lock manager object
+     *
+     * @var \Kirby\Demo\Lock
+     */
+    protected $lock;
+
+    /**
      * Maximum number of simultaneous demo instances per client
      *
      * @var int
@@ -111,7 +118,7 @@ class Demo
     {
         // prevent that new instances are created
         // while the template is being rebuilt
-        $this->instances()->lock();
+        $this->lock()->acquireExclusiveLock();
 
         // recursively delete the whole old template directory
         Dir::remove($this->root() . '/data/template');
@@ -135,7 +142,7 @@ class Demo
         }
 
         // instances can now be created again
-        $this->instances()->unlock();
+        $this->lock()->releaseLock();
     }
 
     /**
@@ -233,6 +240,20 @@ class Demo
         }
 
         return $this->instances;
+    }
+
+    /**
+     * Returns the lock manager
+     *
+     * @return \Kirby\Demo\Lock
+     */
+    public function lock()
+    {
+        if (!$this->lock) {
+            $this->lock = new Lock($this);
+        }
+
+        return $this->lock;
     }
 
     /**

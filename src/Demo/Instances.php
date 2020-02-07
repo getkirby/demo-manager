@@ -50,10 +50,6 @@ class Instances
         // always throw exceptions
         $this->database->fail();
 
-        // wait for SQLite locks for up to thirty seconds
-        // (needed while the template is being rebuilt)
-        $this->database->execute('PRAGMA busy_timeout = 30000');
-
         // ensure that the table is initialized
         if ($this->database->validateTable('instances') !== true) {
             $this->database->createTable('instances', [
@@ -110,10 +106,13 @@ class Instances
      */
     public function create()
     {
-        // ensure that no other process uses the same name
-        $this->lock();
+        // prevent that the template gets rebuilt while
+        // the instance is created
+        $this->demo()->lock()->acquireSharedLock();
 
-        // generate a unique instance name
+        // generate a unique instance name;
+        // ensure that no other process uses the same name
+        $this->database->execute('BEGIN IMMEDIATE TRANSACTION');
         $table = $this->database->table('instances');
         do {
             $name = Str::random(8, 'alphaNum');
@@ -126,7 +125,7 @@ class Instances
             'ipHash'  => static::ipHash()
         ];
         $id = $table->insert($props);
-        $this->unlock();
+        $this->database->execute('END TRANSACTION');
 
         // create the actual instance
         exec(
@@ -139,6 +138,9 @@ class Instances
         if ($return !== 0) {
             throw new Exception('Could not copy instance directory, got return value ' . $return);
         }
+
+        // the template can now be rebuilt again
+        $this->demo()->lock()->releaseLock();
 
         $props['id'] = $id;
         $props['instances'] = $this;
@@ -191,16 +193,6 @@ class Instances
     }
 
     /**
-     * Ensures a write lock on the database
-     *
-     * @return void
-     */
-    public function lock(): void
-    {
-        $this->database->execute('BEGIN IMMEDIATE TRANSACTION');
-    }
-
-    /**
      * Returns the stats for debugging
      *
      * @return array
@@ -248,15 +240,5 @@ class Instances
             'oldest'     => ($oldest)? date('r', $oldest->created()) : null,
             'latest'     => ($latest)? date('r', $latest->created()) : null
         ];
-    }
-
-    /**
-     * Frees the write lock on the database
-     *
-     * @return void
-     */
-    public function unlock(): void
-    {
-        $this->database->execute('END TRANSACTION');
     }
 }
