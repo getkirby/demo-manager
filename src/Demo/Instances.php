@@ -43,7 +43,7 @@ class Instances
 
         // open the database, create it if it doesn't exist
         $this->database = new Database([
-            'database' => $demo->root() . '/data/instances.sqlite',
+            'database' => $demo->config()->root() . '/data/instances.sqlite',
             'type'     => 'sqlite'
         ]);
 
@@ -130,8 +130,8 @@ class Instances
         // create the actual instance
         exec(
             'cp -r ' .
-            escapeshellarg($this->demo()->root() . '/data/template') . ' ' .
-            escapeshellarg($this->demo()->root() . '/public/' . $name),
+            escapeshellarg($this->demo()->config()->root() . '/data/template') . ' ' .
+            escapeshellarg($this->demo()->config()->root() . '/public/' . $name),
             $output,
             $return
         );
@@ -218,15 +218,15 @@ class Instances
         // determine the health status and report it to find potential bugs;
         // ordered by severity!
         $status = 'OK';
-        if ($numActive >= $this->demo()->instanceLimit()) {
+        if ($numActive >= $this->demo()->config()->instanceLimit()) {
             $status = 'CRITICAL:overload';
-        } elseif ($numActive >= $this->demo()->instanceLimit() * 0.7) {
+        } elseif ($numActive >= $this->demo()->config()->instanceLimit() * 0.7) {
             $status = 'WARN:overload-nearing';
-        } elseif ($oldest && time() - $oldest->created() > $this->demo()->expiryAbsolute() + 30 * 60) {
+        } elseif ($oldest && time() - $oldest->created() > $this->demo()->config()->expiryAbsolute() + 30 * 60) {
             $status = 'WARN:too-old-expired';
         } elseif ($numActive > 0 && $numExpired / $numActive > 0.1 && $numExpired > 10) {
             $status = 'WARN:too-many-expired';
-        } elseif ($clientAvg && $clientAvg > $this->demo()->maxInstancesPerClient()) {
+        } elseif ($clientAvg && $clientAvg > $this->demo()->config()->maxInstancesPerClient()) {
             $status = 'WARN:too-many-per-client';
         }
 

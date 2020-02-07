@@ -118,10 +118,10 @@ class Instance
         $demo = $this->instances->demo();
 
         // absolute expiration based on the creation time
-        $absoluteExpiry = $this->created + $demo->expiryAbsolute();
+        $absoluteExpiry = $this->created + $demo->config()->expiryAbsolute();
 
         // inactivity expiration based on content changes
-        $inactivityExpiry = Dir::modified($this->root() . '/content') + $demo->expiryInactivity();
+        $inactivityExpiry = Dir::modified($this->root() . '/content') + $demo->config()->expiryInactivity();
 
         // return the shorter time of the two
         return min($absoluteExpiry, $inactivityExpiry);
@@ -146,7 +146,7 @@ class Instance
     {
         // the instance cannot last any longer than the absolute expiry time,
         // no matter the current activity
-        return $this->created + $this->instances->demo()->expiryAbsolute();
+        return $this->created + $this->instances->demo()->config()->expiryAbsolute();
     }
 
     /**
@@ -210,7 +210,7 @@ class Instance
      */
     public function root(): string
     {
-        return $this->instances->demo()->root() . '/public/' . $this->name;
+        return $this->instances->demo()->config()->root() . '/public/' . $this->name;
     }
 
     /**

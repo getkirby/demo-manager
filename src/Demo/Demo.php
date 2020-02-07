@@ -9,7 +9,6 @@ use Kirby\Http\Response;
 use Kirby\Http\Uri;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\F;
-use Kirby\Toolkit\Properties;
 use ZipArchive;
 
 /**
@@ -23,28 +22,12 @@ use ZipArchive;
  */
 class Demo
 {
-    use Properties;
-
     /**
-     * Absolute expiration time based on the instance creation time in seconds
+     * Config object
      *
-     * @var int
+     * @var \Kirby\Demo\Config
      */
-    protected $expiryAbsolute = 3 * 60 * 60;
-
-    /**
-     * Inactivity expiration time based on content changes in seconds
-     *
-     * @var int
-     */
-    protected $expiryInactivity = 60 * 60;
-
-    /**
-     * Absolute maximum number of simultaneously active instances
-     *
-     * @var integer
-     */
-    protected $instanceLimit = 300;
+    protected $config;
 
     /**
      * Instance manager object
@@ -61,50 +44,19 @@ class Demo
     protected $lock;
 
     /**
-     * Maximum number of simultaneous demo instances per client
-     *
-     * @var int
-     */
-    protected $maxInstancesPerClient = 2;
-
-    /**
-     * Application root
-     *
-     * @var string
-     */
-    protected $root;
-
-    /**
-     * Configured secret for the GitHub webhook
-     *
-     * @var string
-     */
-    protected $webhookSecret;
-
-    /**
      * Class constructor
      *
      * @param array $props
      */
     public function __construct(array $props = [])
     {
-        // only set the root for now, the rest is set below
-        $this->setProperty('root', $props['root'] ?? null);
+        $this->config = new Config($props);
 
         // ensure that the data directory is present
-        Dir::make($this->root() . '/data');
-
-        // load custom config (optional)
-        $config = @include_once($this->root() . '/data/config.php');
-        if (is_array($config) !== true) {
-            $config = [];
-        }
-
-        // set all properties; the passed props override the general config
-        $this->setProperties(array_merge($config, $props));
+        Dir::make($this->config()->root() . '/data');
 
         // ensure that there is a valid build for us to use
-        if (is_dir($this->root() . '/data/template') !== true) {
+        if (is_dir($this->config()->root() . '/data/template') !== true) {
             $this->build();
         }
     }
@@ -121,20 +73,20 @@ class Demo
         $this->lock()->acquireExclusiveLock();
 
         // recursively delete the whole old template directory
-        Dir::remove($this->root() . '/data/template');
+        Dir::remove($this->config()->root() . '/data/template');
 
         // initialize the template with the Demokit
         $this->downloadZip(
             'https://github.com/getkirby/demokit/archive/master.zip',
             'demokit-master',
-            $this->root() . '/data/template'
+            $this->config()->root() . '/data/template'
         );
 
         // run the post-install hook of the Demokit
-        $buildConfig = require($this->root() . '/data/template/.build.php');
+        $buildConfig = require($this->config()->root() . '/data/template/.build.php');
         if (isset($buildConfig['hook']) === true && $buildConfig['hook'] instanceof Closure) {
             $previousDir = getcwd();
-            chdir($this->root() . '/data/template');
+            chdir($this->config()->root() . '/data/template');
 
             $buildConfig['hook']($this);
 
@@ -160,6 +112,16 @@ class Demo
     }
 
     /**
+     * Returns the config object
+     *
+     * @return \Kirby\Demo\Config
+     */
+    public function config()
+    {
+        return $this->config;
+    }
+
+    /**
      * Downloads a ZIP file and extracts it the specified destination
      *
      * @param string $url Download URL
@@ -181,51 +143,21 @@ class Demo
         if ($zip->open(stream_get_meta_data($tmp)['uri']) !== true) {
             throw new Exception('Could not open ZIP from ' . $url);
         }
-        $zip->extractTo($this->root() . '/data/tmp');
+        $zip->extractTo($this->config()->root() . '/data/tmp');
         $zip->close();
         fclose($tmp);
 
         // move the directory to the final destination
-        if (is_dir($this->root() . '/data/tmp/' . $dir) !== true) {
+        if (is_dir($this->config()->root() . '/data/tmp/' . $dir) !== true) {
             throw new Exception('ZIP file ' . $url . ' does not contain directory ' . $dir);
         }
         if (file_exists($path) === true) {
             throw new Exception('Destination ' . $path . ' for ZIP file ' . $url . ' already exists');
         }
-        rename($this->root() . '/data/tmp/' . $dir, $path);
+        rename($this->config()->root() . '/data/tmp/' . $dir, $path);
 
         // delete the temporary directory
-        Dir::remove($this->root() . '/data/tmp');
-    }
-
-    /**
-     * Returns the absolute expiration time based on the instance creation time
-     *
-     * @return int Time in seconds
-     */
-    public function expiryAbsolute(): int
-    {
-        return $this->expiryAbsolute;
-    }
-
-    /**
-     * Returns the inactivity expiration based on content changes
-     *
-     * @return int Time in seconds
-     */
-    public function expiryInactivity(): int
-    {
-        return $this->expiryInactivity;
-    }
-
-    /**
-     * Returns the absolute maximum number of simultaneously active instances
-     *
-     * @return int
-     */
-    public function instanceLimit(): int
-    {
-        return $this->instanceLimit;
+        Dir::remove($this->config()->root() . '/data/tmp');
     }
 
     /**
@@ -257,16 +189,6 @@ class Demo
     }
 
     /**
-     * Returns the maximum number of simultaneous demo instances per client
-     *
-     * @return int
-     */
-    public function maxInstancesPerClient(): int
-    {
-        return $this->maxInstancesPerClient;
-    }
-
-    /**
      * Renders a HTTP response for a given path
      *
      * @param string|null $path Request path, defaults to the current one
@@ -290,13 +212,13 @@ class Demo
                 // create a new instance
 
                 // check if there are too many active instances on this server
-                if ($this->instances()->count() >= $this->instanceLimit()) {
+                if ($this->instances()->count() >= $this->config()->instanceLimit()) {
                     return Response::redirect('https://getkirby.com/try/error:overload', 302);
                 }
 
                 // check if the current client already has too many active instances
                 $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
-                if ($countCurrentClient >= $this->maxInstancesPerClient()) {
+                if ($countCurrentClient >= $this->config()->maxInstancesPerClient()) {
                     return Response::redirect('https://getkirby.com/try/error:rate-limit', 302);
                 }
 
@@ -316,7 +238,7 @@ class Demo
                 try {
                     // validate that the request came from GitHub
                     $body = $request->body()->contents();
-                    $expected = hash_hmac('sha1', $body, $this->webhookSecret());
+                    $expected = hash_hmac('sha1', $body, $this->config()->webhookSecret());
                     $signature = $request->header('X-Hub-Signature');
                     if (hash_equals('sha1=' . $expected, $signature) !== true) {
                         return new Response('Invalid body signature', 'text/plain', 403);
@@ -342,88 +264,6 @@ class Demo
     }
 
     /**
-     * Returns the application root
-     *
-     * @return string
-     */
-    public function root(): string
-    {
-        return $this->root;
-    }
-
-    /**
-     * Sets the absolute expiration time based on the instance creation time
-     *
-     * @param int $expiryAbsolute Time in seconds
-     * @return self
-     */
-    protected function setExpiryAbsolute(int $expiryAbsolute)
-    {
-        $this->expiryAbsolute = $expiryAbsolute;
-        return $this;
-    }
-
-    /**
-     * Sets the absolute maximum number of simultaneously active instances
-     *
-     * @param int $instanceLimit
-     * @return self
-     */
-    protected function setInstanceLimit(int $instanceLimit)
-    {
-        $this->instanceLimit = $instanceLimit;
-        return $this;
-    }
-
-    /**
-     * Sets the inactivity expiration time based on content changes
-     *
-     * @param int $expiryInactivity Time in seconds
-     * @return self
-     */
-    protected function setExpiryInactivity(int $expiryInactivity)
-    {
-        $this->expiryInactivity = $expiryInactivity;
-        return $this;
-    }
-
-    /**
-     * Sets the maximum number of simultaneous demo instances per client
-     *
-     * @param int $maxInstancesPerClient
-     * @return self
-     */
-    protected function setMaxInstancesPerClient(int $maxInstancesPerClient)
-    {
-        $this->maxInstancesPerClient = $maxInstancesPerClient;
-        return $this;
-    }
-
-    /**
-     * Sets the application root
-     *
-     * @param string|null $root
-     * @return self
-     */
-    protected function setRoot(string $root = null)
-    {
-        $this->root = $root ?? dirname(dirname(__DIR__));
-        return $this;
-    }
-
-    /**
-     * Sets the configured secret for the GitHub webhook
-     *
-     * @param string $webhookSecret
-     * @return self
-     */
-    protected function setWebhookSecret(string $webhookSecret)
-    {
-        $this->webhookSecret = $webhookSecret;
-        return $this;
-    }
-
-    /**
      * Returns the stats for debugging
      *
      * @return array
@@ -431,18 +271,8 @@ class Demo
     public function stats(): array
     {
         $stats = $this->instances()->stats();
-        $stats['lastBuild'] = date('r', filemtime($this->root() . '/data/template'));
+        $stats['lastBuild'] = date('r', filemtime($this->config()->root() . '/data/template'));
 
         return $stats;
-    }
-
-    /**
-     * Returns the configured secret for the GitHub webhook
-     *
-     * @return string
-     */
-    public function webhookSecret(): string
-    {
-        return $this->webhookSecret;
     }
 }

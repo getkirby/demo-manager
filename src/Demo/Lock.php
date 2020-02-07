@@ -41,7 +41,7 @@ class Lock
 
         // open the file used for locking;
         // creates it if it doesn't exist
-        $this->handle = fopen($this->demo->root() . '/data/.lock', 'c');
+        $this->handle = fopen($this->demo->config()->root() . '/data/.lock', 'c');
     }
 
     /**
