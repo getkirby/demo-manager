@@ -49,6 +49,10 @@ class Instances
         // always throw exceptions
         $this->database->fail();
 
+        // wait for SQLite locks for up to thirty seconds
+        // (needed while the template is being rebuilt)
+        $this->database->execute('PRAGMA busy_timeout = 30000');
+
         // ensure that the table is initialized
         if ($this->database->validateTable('instances') !== true) {
             $this->database->createTable('instances', [
