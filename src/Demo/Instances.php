@@ -2,6 +2,7 @@
 
 namespace Kirby\Demo;
 
+use Kirby\Exception\Exception;
 use Kirby\Database\Database;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\Str;
@@ -128,13 +129,16 @@ class Instances
         $this->unlock();
 
         // create the actual instance
-        $ignore = Dir::$ignore;
-        Dir::$ignore = []; // also include dotfiles in the copy
-        Dir::copy(
-            $this->demo()->root() . '/data/template',
-            $this->demo()->root() . '/public/' . $name
+        exec(
+            'cp -r ' .
+            escapeshellarg($this->demo()->root() . '/data/template') . ' ' .
+            escapeshellarg($this->demo()->root() . '/public/' . $name),
+            $output,
+            $return
         );
-        Dir::$ignore = $ignore; // restore original ignore configuration
+        if ($return !== 0) {
+            throw new Exception('Could not copy instance directory, got return value ' . $return);
+        }
 
         $props['id'] = $id;
         $props['instances'] = $this;
