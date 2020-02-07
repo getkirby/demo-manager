@@ -2,7 +2,11 @@
 
 namespace Kirby\Demo;
 
+use Closure;
+use Kirby\Exception\InvalidArgumentException;
+use Kirby\Http\Response;
 use Kirby\Toolkit\Properties;
+use Kirby\Toolkit\Str;
 
 /**
  * Config container
@@ -32,6 +36,13 @@ class Config
     protected $expiryInactivity = 60 * 60;
 
     /**
+     * URL to redirect to or response callback for the index page
+     *
+     * @var string|\Closure
+     */
+    protected $indexResponse;
+
+    /**
      * Absolute maximum number of simultaneously active instances
      *
      * @var integer
@@ -51,6 +62,23 @@ class Config
      * @var string
      */
     protected $root;
+
+    /**
+     * URL to redirect to or response callback for the status page;
+     * accepts the placeholders {{ type }} and {{ status }}
+     *
+     * @var string|\Closure
+     */
+    protected $statusResponse;
+
+    /**
+     * URL of the ZIP file that will be downloaded as the template;
+     * example: `https://example.com/test.zip#test` will extract the
+     * `test` directory from the `test.zip` file
+     *
+     * @var string
+     */
+    protected $templateUrl;
 
     /**
      * Configured secret for the GitHub webhook
@@ -100,6 +128,21 @@ class Config
     }
 
     /**
+     * Returns the response for the index page
+     *
+     * @param \Kirby\Demo\Demo $demo App instance
+     * @return \Kirby\Http\Response
+     */
+    public function indexResponse($demo)
+    {
+        if (is_string($this->indexResponse) === true) {
+            return Response::redirect($this->indexResponse, 302);
+        } else {
+            return call_user_func($this->indexResponse, $demo);
+        }
+    }
+
+    /**
      * Returns the absolute maximum number of simultaneously active instances
      *
      * @return int
@@ -138,6 +181,22 @@ class Config
     protected function setExpiryAbsolute(int $expiryAbsolute)
     {
         $this->expiryAbsolute = $expiryAbsolute;
+        return $this;
+    }
+
+    /**
+     * Sets the URL to redirect to or response callback for the index page
+     *
+     * @param string|\Closure $indexResponse
+     * @return self
+     */
+    protected function setIndexResponse($indexResponse)
+    {
+        if (is_string($indexResponse) !== true && !($indexResponse instanceof Closure)) {
+            throw new InvalidArgumentException('indexResponse needs to be string or Closure');
+        }
+
+        $this->indexResponse = $indexResponse;
         return $this;
     }
 
@@ -190,6 +249,39 @@ class Config
     }
 
     /**
+     * Sets the URL to redirect to or response callback for the status page;
+     * accepts the placeholders {{ type }} and {{ status }}
+     *
+     * @param string|\Closure $statusResponse
+     * @return self
+     */
+    protected function setStatusResponse($statusResponse)
+    {
+        if (is_string($statusResponse) !== true && !($statusResponse instanceof Closure)) {
+            throw new InvalidArgumentException('statusResponse needs to be string or Closure');
+        }
+
+        $this->statusResponse = $statusResponse;
+        return $this;
+    }
+
+    /**
+     * Sets the URL of the ZIP file that will be downloaded as the template
+     *
+     * @param string $templateUrl
+     * @return self
+     */
+    protected function setTemplateUrl(string $templateUrl)
+    {
+        if (Str::contains($templateUrl, '#') !== true) {
+            throw new InvalidArgumentException('templateUrl needs to include the directory name after a # sign');
+        }
+
+        $this->templateUrl = $templateUrl;
+        return $this;
+    }
+
+    /**
      * Sets the configured secret for the GitHub webhook
      *
      * @param string $webhookSecret
@@ -199,6 +291,35 @@ class Config
     {
         $this->webhookSecret = $webhookSecret;
         return $this;
+    }
+
+    /**
+     * Returns the response for the status page
+     *
+     * @param \Kirby\Demo\Demo $demo App instance
+     * @param string $type
+     * @param string $status
+     * @return \Kirby\Http\Response
+     */
+    public function statusResponse($demo, $type, $status)
+    {
+        if (is_string($this->statusResponse) === true) {
+            $url = Str::template($this->statusResponse, compact('type', 'status'));
+
+            return Response::redirect($url, 302);
+        } else {
+            return call_user_func($this->indexResponse, $demo, $type, $status);
+        }
+    }
+
+    /**
+     * Returns the URL of the ZIP file that will be downloaded as the template
+     *
+     * @return string
+     */
+    public function templateUrl(): string
+    {
+        return $this->templateUrl;
     }
 
     /**

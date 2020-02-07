@@ -9,6 +9,7 @@ use Kirby\Http\Response;
 use Kirby\Http\Uri;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\F;
+use Kirby\Toolkit\Str;
 use ZipArchive;
 
 /**
@@ -77,9 +78,10 @@ class Demo
 
         // initialize the template with the Demokit
         $root = $this->config()->root() . '/data/template';
+        $url  = $this->config()->templateUrl();
         $this->downloadZip(
-            'https://github.com/getkirby/demokit/archive/master.zip',
-            'demokit-master',
+            Str::before($url, '#'),
+            Str::after($url, '#'),
             $root
         );
 
@@ -206,21 +208,21 @@ class Demo
 
                 // check if there are too many active instances on this server
                 if ($this->instances()->count() >= $this->config()->instanceLimit()) {
-                    return Response::redirect('https://getkirby.com/try/error:overload', 302);
+                    return $this->config()->statusResponse($this, 'error', 'overload');
                 }
 
                 // check if the current client already has too many active instances
                 $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
                 if ($countCurrentClient >= $this->config()->maxInstancesPerClient()) {
-                    return Response::redirect('https://getkirby.com/try/error:rate-limit', 302);
+                    return $this->config()->statusResponse($this, 'error', 'rate-limit');
                 }
 
                 $instance = $this->instances()->create();
                 return Response::redirect($instance->url(), 302);
             } elseif ($path === '') {
-                // homepage, redirect to Try page
+                // homepage, redirect to index page
 
-                return Response::redirect('https://getkirby.com/try', 302);
+                return $this->config()->indexResponse($this);
             } elseif ($path === 'stats') {
                 // print stats
 
@@ -246,13 +248,13 @@ class Demo
             } else {
                 // instance that doesn't exist (anymore); redirect to the error page
 
-                return Response::redirect('https://getkirby.com/try/error:not-found', 302);
+                return $this->config()->statusResponse($this, 'error', 'not-found');
             }
         } catch (\Throwable $e) {
             // some kind of unhandled error; redirect to the general error page
 
             error_log($e);
-            return Response::redirect('https://getkirby.com/try/error:unexpected', 302);
+            return $this->config()->statusResponse($this, 'error', 'unexpected');
         }
     }
 
