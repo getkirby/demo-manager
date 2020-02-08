@@ -244,6 +244,17 @@ class Instance
     }
 
     /**
+     * Checks if there was any activity in this instance
+     * within the last five minutes
+     *
+     * @return bool
+     */
+    public function isHot(): bool
+    {
+        return time() - $this->lastActivity() < 5 * 60;
+    }
+
+    /**
      * Checks if the instance is only prepared
      *
      * @return bool

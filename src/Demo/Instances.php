@@ -272,6 +272,7 @@ class Instances
         // collect stats
         $numTotal    = $sequence->select('SEQ')->first();
         $numActive   = $allActive->count();
+        $numHot      = $allActive->filterBy('isHot', '==', true)->count();
         $numExpired  = $allActive->filterBy('hasExpired', '==', true)->count();
         $numPrepared = $all->filterBy('isPrepared', '==', true)->count();
         $numClients  = (int)$this->database
@@ -300,6 +301,7 @@ class Instances
             'status'      => $status,
             'numTotal'    => ($numTotal)? (int)$numTotal->seq() : 0,
             'numActive'   => $numActive,
+            'numHot'      => $numHot,
             'numExpired'  => $numExpired,
             'numClients'  => $numClients,
             'numPrepared' => $numPrepared,

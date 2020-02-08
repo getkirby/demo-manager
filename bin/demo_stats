@@ -9,8 +9,9 @@ $stats = (new Demo)->stats();
 
 if (isset($argv[1]) && $argv[1] === '--csv') {
     echo '"' . date('c') . '";' . $stats['numTotal'] . ';' .
-         $stats['numActive'] . ';' . $stats['numExpired'] . ';' .
-         $stats['numClients'] . ';' . $stats['numPrepared'] . "\n";
+         $stats['numActive'] . ';' . $stats['numHot'] . ';' .
+         $stats['numExpired'] . ';' . $stats['numClients'] . ';' .
+         $stats['numPrepared'] . "\n";
 } else {
     echo json_encode($stats, JSON_PRETTY_PRINT) . "\n";
 }
