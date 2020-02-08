@@ -5,4 +5,12 @@ namespace Kirby\Demo;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-echo json_encode((new Demo)->stats(), JSON_PRETTY_PRINT) . "\n";
+$stats = (new Demo)->stats();
+
+if (isset($argv[1]) && $argv[1] === '--csv') {
+    echo '"' . date('c') . '";' . $stats['numTotal'] . ';' .
+         $stats['numActive'] . ';' . $stats['numExpired'] . ';' .
+         $stats['numClients'] . ';' . $stats['numPrepared'] . "\n";
+} else {
+    echo json_encode($stats, JSON_PRETTY_PRINT) . "\n";
+}
