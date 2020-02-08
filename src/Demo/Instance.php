@@ -214,10 +214,14 @@ class Instance
             throw new Exception('Instance is already taken');
         }
 
+        // grab the instance in the database
         $this->instances->update($this->id, [
             'created' => $this->created = time(),
             'ipHash'  => $this->ipHash  = Instances::ipHash()
         ]);
+
+        // update the expiry time
+        touch($this->root() . '/content');
     }
 
     /**
