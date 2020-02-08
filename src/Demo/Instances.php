@@ -224,9 +224,10 @@ class Instances
     /**
      * Ensures that the right number of instances are prepared
      *
+     * @param int|null $num Custom number of instances to prepare; defaults to auto
      * @return void
      */
-    public function prepare(): void
+    public function prepare(?int $num = null): void
     {
         $instanceLimit = $this->demo()->config()->instanceLimit();
 
@@ -235,11 +236,16 @@ class Instances
         $countPrepared = $this->count('ipHash IS NULL');
 
         // determine how many prepared instances we need
-        $target = min(
-            max($countActive * 0.1, 5),    // 10 % of active, minimum 5
-            $instanceLimit * 0.05,         // but not more than 5 % of limit
-            $instanceLimit - $countActive  // and never go over the limit
-        );
+        if ($num !== null) {
+            // use the supplied number, but don't go over the limit
+            $target = min($num, $instanceLimit - $countActive);
+        } else {
+            $target = min(
+                max($countActive * 0.1, 5),    // 10 % of active, minimum 5
+                $instanceLimit * 0.05,         // but not more than 5 % of limit
+                $instanceLimit - $countActive  // and never go over the limit
+            );
+        }
         $remaining = $target - $countPrepared;
 
         // create the prepared instances

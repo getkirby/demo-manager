@@ -5,4 +5,4 @@ namespace Kirby\Demo;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-(new Demo)->instances()->prepare();
+(new Demo)->instances()->prepare($argv[1] ?? null);
