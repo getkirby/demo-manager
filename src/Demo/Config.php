@@ -108,23 +108,15 @@ class Config
     }
 
     /**
-     * Returns the absolute expiration time based on the instance creation time
+     * Magic caller to access all properties
      *
-     * @return int Time in seconds
+     * @param string $property
+     * @param array $arguments
+     * @return mixed
      */
-    public function expiryAbsolute(): int
+    public function __call(string $property, array $arguments = [])
     {
-        return $this->expiryAbsolute;
-    }
-
-    /**
-     * Returns the inactivity expiration based on content changes
-     *
-     * @return int Time in seconds
-     */
-    public function expiryInactivity(): int
-    {
-        return $this->expiryInactivity;
+        return $this->$property ?? null;
     }
 
     /**
@@ -140,36 +132,6 @@ class Config
         } else {
             return call_user_func($this->indexResponse, $demo);
         }
-    }
-
-    /**
-     * Returns the absolute maximum number of simultaneously active instances
-     *
-     * @return int
-     */
-    public function instanceLimit(): int
-    {
-        return $this->instanceLimit;
-    }
-
-    /**
-     * Returns the maximum number of simultaneous demo instances per client
-     *
-     * @return int
-     */
-    public function maxInstancesPerClient(): int
-    {
-        return $this->maxInstancesPerClient;
-    }
-
-    /**
-     * Returns the application root
-     *
-     * @return string
-     */
-    public function root(): string
-    {
-        return $this->root;
     }
 
     /**
@@ -310,25 +272,5 @@ class Config
         } else {
             return call_user_func($this->indexResponse, $demo, $type, $status);
         }
-    }
-
-    /**
-     * Returns the URL of the ZIP file that will be downloaded as the template
-     *
-     * @return string|null
-     */
-    public function templateUrl(): ?string
-    {
-        return $this->templateUrl;
-    }
-
-    /**
-     * Returns the configured secret for the GitHub webhook
-     *
-     * @return string|null
-     */
-    public function webhookSecret(): ?string
-    {
-        return $this->webhookSecret;
     }
 }
