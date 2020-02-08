@@ -9,3 +9,4 @@
 /public/*
 !/public/.htaccess
 !/public/index.php
+!/public/favicon.ico

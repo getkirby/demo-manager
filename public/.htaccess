@@ -1,7 +1,8 @@
 RewriteEngine On
 RewriteBase /
 
-# Handle every request that couldn't
-# be passed to a subfolder demo instance
-# with the app
+# Handle every request that couldn't be passed
+# to a subfolder demo instance with the app
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule .* index.php
