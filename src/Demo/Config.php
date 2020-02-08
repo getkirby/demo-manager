@@ -22,6 +22,14 @@ class Config
     use Properties;
 
     /**
+     * Directory in the demo that is checked for user activity;
+     * defaults to the index directory (not recommended, potentially slow)
+     *
+     * @var string
+     */
+    protected $activityDirectory;
+
+    /**
      * Absolute expiration time based on the instance creation time in seconds
      *
      * @var int
@@ -132,6 +140,19 @@ class Config
         } else {
             return call_user_func($this->indexResponse, $demo);
         }
+    }
+
+    /**
+     * Sets the directory in the demo that is checked for user activity;
+     * defaults to the index directory (not recommended, potentially slow)
+     *
+     * @param string $activityDirectory
+     * @return self
+     */
+    public function setActivityDirectory(string $activityDirectory = '')
+    {
+        $this->activityDirectory = $activityDirectory;
+        return $this;
     }
 
     /**

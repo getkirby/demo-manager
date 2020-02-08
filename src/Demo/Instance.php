@@ -49,6 +49,13 @@ class Instance
     protected $ipHash;
 
     /**
+     * Cache for the last activity timestamp
+     *
+     * @var int
+     */
+    protected $lastActivity;
+
+    /**
      * Random instance name in the URL
      *
      * @var string
@@ -132,7 +139,7 @@ class Instance
         $absoluteExpiry = $created + $demo->config()->expiryAbsolute();
 
         // inactivity expiration based on content changes
-        $inactivityExpiry = Dir::modified($this->root() . '/content') + $demo->config()->expiryInactivity();
+        $inactivityExpiry = $this->lastActivity() + $demo->config()->expiryInactivity();
 
         // return the shorter time of the two
         return min($absoluteExpiry, $inactivityExpiry);
@@ -254,6 +261,21 @@ class Instance
     public function ipHash(): ?string
     {
         return $this->ipHash;
+    }
+
+    /**
+     * Returns the timestamp of the last activity inside the instance
+     *
+     * @return int
+     */
+    public function lastActivity(): int
+    {
+        if ($this->lastActivity) {
+            return $this->lastActivity;
+        }
+
+        $activityDirectory = $this->instances->demo()->config()->activityDirectory();
+        return $this->lastActivity = Dir::modified($this->root() . '/' . $activityDirectory);
     }
 
     /**
