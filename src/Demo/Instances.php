@@ -160,7 +160,7 @@ class Instances
     public function current()
     {
         $path = Str::before(ltrim($_SERVER['REQUEST_URI'], '/'), '/');
-        return $this->all(['name' => $path])->first();
+        return $this->get(['name' => $path]);
     }
 
     /**
@@ -182,6 +182,17 @@ class Instances
     public function demo()
     {
         return $this->demo;
+    }
+
+    /**
+     * Returns the first instance matching a WHERE clause
+     *
+     * @param ...mixed WHERE clause
+     * @return \Kirby\Demo\Instance
+     */
+    public function get()
+    {
+        return $this->all(...func_get_args())->first();
     }
 
     /**

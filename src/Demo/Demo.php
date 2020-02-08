@@ -4,6 +4,7 @@ namespace Kirby\Demo;
 
 use Closure;
 use Kirby\Exception\Exception;
+use Kirby\Http\Cookie;
 use Kirby\Http\Request;
 use Kirby\Http\Response;
 use Kirby\Http\Uri;
@@ -198,10 +199,11 @@ class Demo
     public function render(?string $path = null, ?string $method = null)
     {
         $request = new Request();
+        $uri     = Uri::current();
 
         // automatically detect the request path and method if not given
         if ($path === null) {
-            $path = (string)Uri::current()->path();
+            $path = (string)$uri->path();
         }
         if ($method === null) {
             $method = $request->method();
@@ -211,18 +213,33 @@ class Demo
             if ($path === '' && $method === 'POST') {
                 // create a new instance
 
+                // check if the client already has an existing instance
+                $cookieInstance = Cookie::get('instance');
+                if ($cookieInstance !== null) {
+                    $instanceUri = new Uri($cookieInstance);
+                    $instance = $this->instances()->get(['name' => (string)$instanceUri->path()]);
+
+                    if ($instanceUri->host() === $uri->host() && $instance !== null) {
+                        return Response::redirect($instance->url(), 302);
+                    }
+                }
+
                 // check if there are too many active instances on this server
                 if ($this->instances()->count() >= $this->config()->instanceLimit()) {
                     return $this->config()->statusResponse($this, 'error', 'overload');
                 }
 
-                // check if the current client already has too many active instances
+                // check if the current IP address already has too many active instances
                 $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
                 if ($countCurrentClient >= $this->config()->maxInstancesPerClient()) {
                     return $this->config()->statusResponse($this, 'error', 'rate-limit');
                 }
 
                 $instance = $this->instances()->create();
+
+                // create a cookie for the next request
+                Cookie::set('instance', $instance->url(), ['lifetime' => $this->config()->expiryAbsolute() / 60]);
+
                 return Response::redirect($instance->url(), 302);
             } elseif ($path === '') {
                 // homepage, redirect to index page
