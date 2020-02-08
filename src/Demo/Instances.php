@@ -286,7 +286,7 @@ class Instances
             time() - $oldest->created() > $this->demo()->config()->expiryAbsolute() + 30 * 60
         ) {
             $status = 'WARN:too-old-expired';
-        } elseif ($numActive > 0 && $numExpired / $numActive > 0.1 && $numExpired > 10) {
+        } elseif ($numActive > 0 && $numExpired / $numActive > 0.2 && $numExpired > 10) {
             $status = 'WARN:too-many-expired';
         } elseif ($clientAvg && $clientAvg > $this->demo()->config()->maxInstancesPerClient()) {
             $status = 'WARN:too-many-per-client';
