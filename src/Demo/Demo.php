@@ -69,6 +69,12 @@ class Demo
      */
     public function build(): void
     {
+        // check if building is configured
+        $url = $this->config()->templateUrl();
+        if (is_string($url) !== true) {
+            throw new Exception('Template URL that is required for building is not configured');
+        }
+
         // prevent that new instances are created
         // while the template is being rebuilt
         $this->lock()->acquireExclusiveLock();
@@ -78,7 +84,6 @@ class Demo
 
         // initialize the template with the Demokit
         $root = $this->config()->root() . '/data/template';
-        $url  = $this->config()->templateUrl();
         $this->downloadZip(
             Str::before($url, '#'),
             Str::after($url, '#'),
@@ -230,10 +235,15 @@ class Demo
             } elseif ($path === 'build') {
                 // GitHub webhook to build the template for a new release
 
+                $webhookSecret = $this->config()->webhookSecret();
+                if (is_string($webhookSecret) !== true) {
+                    return new Response('Webhook secret is not configured', 'text/plain', 403);
+                }
+
                 try {
                     // validate that the request came from GitHub
                     $body = $request->body()->contents();
-                    $expected = hash_hmac('sha1', $body, $this->config()->webhookSecret());
+                    $expected = hash_hmac('sha1', $body, $webhookSecret);
                     $signature = $request->header('X-Hub-Signature');
                     if (hash_equals('sha1=' . $expected, $signature) !== true) {
                         return new Response('Invalid body signature', 'text/plain', 403);

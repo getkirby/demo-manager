@@ -76,14 +76,14 @@ class Config
      * example: `https://example.com/test.zip#test` will extract the
      * `test` directory from the `test.zip` file
      *
-     * @var string
+     * @var string|null
      */
     protected $templateUrl;
 
     /**
      * Configured secret for the GitHub webhook
      *
-     * @var string
+     * @var string|null
      */
     protected $webhookSecret;
 
@@ -271,9 +271,9 @@ class Config
      * @param string $templateUrl
      * @return self
      */
-    protected function setTemplateUrl(string $templateUrl)
+    protected function setTemplateUrl(?string $templateUrl = null)
     {
-        if (Str::contains($templateUrl, '#') !== true) {
+        if (is_string($templateUrl) === true && Str::contains($templateUrl, '#') !== true) {
             throw new InvalidArgumentException('templateUrl needs to include the directory name after a # sign');
         }
 
@@ -284,10 +284,10 @@ class Config
     /**
      * Sets the configured secret for the GitHub webhook
      *
-     * @param string $webhookSecret
+     * @param string|null $webhookSecret
      * @return self
      */
-    protected function setWebhookSecret(string $webhookSecret)
+    protected function setWebhookSecret(?string $webhookSecret = null)
     {
         $this->webhookSecret = $webhookSecret;
         return $this;
@@ -315,9 +315,9 @@ class Config
     /**
      * Returns the URL of the ZIP file that will be downloaded as the template
      *
-     * @return string
+     * @return string|null
      */
-    public function templateUrl(): string
+    public function templateUrl(): ?string
     {
         return $this->templateUrl;
     }
@@ -325,9 +325,9 @@ class Config
     /**
      * Returns the configured secret for the GitHub webhook
      *
-     * @return string
+     * @return string|null
      */
-    public function webhookSecret(): string
+    public function webhookSecret(): ?string
     {
         return $this->webhookSecret;
     }
