@@ -94,6 +94,11 @@ class Demo
         // run the post-install hook of the Demokit
         $this->runHook($root, 'build:after');
 
+        // delete all prepared instances (they are now outdated)
+        foreach ($this->instances()->all('ipHash IS NULL') as $instance) {
+            $instance->delete();
+        }
+
         // instances can now be created again
         $this->lock()->releaseLock();
     }

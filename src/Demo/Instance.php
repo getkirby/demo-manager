@@ -2,6 +2,7 @@
 
 namespace Kirby\Demo;
 
+use Kirby\Exception\Exception;
 use Kirby\Http\Uri;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\Properties;
@@ -67,9 +68,9 @@ class Instance
     /**
      * Returns the timestamp when the instance was created
      *
-     * @return int
+     * @return int|null
      */
-    public function created(): int
+    public function created(): ?int
     {
         return $this->created;
     }
@@ -77,20 +78,25 @@ class Instance
     /**
      * Returns the human-readable instance creation time
      *
-     * @return string
+     * @return string|null
      */
-    public function createdHuman(): string
+    public function createdHuman(): ?string
     {
-        $created = time() - $this->created();
-        $hours   = (int)floor($created / 3600);
-        $minutes = (int)round(($created / 60) % 60);
+        $created = $this->created();
+        if ($created === null) {
+            return null;
+        }
 
-        if ($created < 60) {
-            return $created . (($created === 1)? ' second' : ' seconds');
+        $seconds = time() - $this->created();
+        $hours   = (int)floor($seconds / 3600);
+        $minutes = (int)round(($seconds / 60) % 60);
+
+        if ($seconds < 60) {
+            return $seconds . (($seconds === 1)? ' second' : ' seconds');
         }
 
         $string = '';
-        if ($created >= 3600) {
+        if ($seconds >= 3600) {
             $string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
         }
 
@@ -111,14 +117,19 @@ class Instance
     /**
      * Returns the timestamp when this instance will expire
      *
-     * @return int
+     * @return int|null
      */
-    public function expiry(): int
+    public function expiry(): ?int
     {
-        $demo = $this->instances->demo();
+        $demo    = $this->instances->demo();
+        $created = $this->created();
+
+        if ($created === null) {
+            return null;
+        }
 
         // absolute expiration based on the creation time
-        $absoluteExpiry = $this->created + $demo->config()->expiryAbsolute();
+        $absoluteExpiry = $created + $demo->config()->expiryAbsolute();
 
         // inactivity expiration based on content changes
         $inactivityExpiry = Dir::modified($this->root() . '/content') + $demo->config()->expiryInactivity();
@@ -130,9 +141,9 @@ class Instance
     /**
      * Returns the human-readable duration when this instance will expire
      *
-     * @return string
+     * @return string|null
      */
-    public function expiryHuman(): string
+    public function expiryHuman(): ?string
     {
         return static::expiryTimeToHuman($this->expiry());
     }
@@ -140,21 +151,26 @@ class Instance
     /**
      * Returns the timestamp when this instance will definitely expire
      *
-     * @return int
+     * @return int|null
      */
-    public function expiryMax(): int
+    public function expiryMax(): ?int
     {
+        $created = $this->created();
+        if ($created === null) {
+            return null;
+        }
+
         // the instance cannot last any longer than the absolute expiry time,
         // no matter the current activity
-        return $this->created + $this->instances->demo()->config()->expiryAbsolute();
+        return $created + $this->instances->demo()->config()->expiryAbsolute();
     }
 
     /**
      * Returns the human-readable duration when this instance will definitely expire
      *
-     * @return string
+     * @return string|null
      */
-    public function expiryMaxHuman(): string
+    public function expiryMaxHuman(): ?string
     {
         return static::expiryTimeToHuman($this->expiryMax());
     }
@@ -163,10 +179,14 @@ class Instance
      * Converts an expiry timestamp into a human-readable duration
      *
      * @param int $timestamp
-     * @return string
+     * @return string|null
      */
-    protected static function expiryTimeToHuman(int $timestamp): string
+    protected static function expiryTimeToHuman(int $timestamp): ?string
     {
+        if ($timestamp === null) {
+            return null;
+        }
+
         $expiry  = $timestamp - time();
         $hours   = (int)floor($expiry / 3600);
         $minutes = (int)round(($expiry / 60) % 60);
@@ -184,21 +204,50 @@ class Instance
     }
 
     /**
+     * Grabs a prepared instance by assigning it to the current IP address
+     *
+     * @return void
+     */
+    public function grab(): void
+    {
+        if ($this->isPrepared() !== true) {
+            throw new Exception('Instance is already taken');
+        }
+
+        $this->instances->update($this->id, [
+            'created' => time(),
+            'ipHash'  => Instances::ipHash()
+        ]);
+    }
+
+    /**
      * Checks if the instance has expired
      *
      * @return bool
      */
     public function hasExpired(): bool
     {
-        return time() > $this->expiry();
+        $expiry = $this->expiry();
+
+        return $expiry !== null && time() > $expiry;
+    }
+
+    /**
+     * Checks if the instance is only prepared
+     *
+     * @return bool
+     */
+    public function isPrepared(): bool
+    {
+        return $this->ipHash() === null;
     }
 
     /**
      * Returns the truncated hash of the creator's IP address
      *
-     * @return string
+     * @return string|null
      */
-    public function ipHash(): string
+    public function ipHash(): ?string
     {
         return $this->ipHash;
     }
@@ -216,10 +265,10 @@ class Instance
     /**
      * Sets the timestamp when the instance was created
      *
-     * @param int $created
+     * @param int|null $created
      * @return self
      */
-    protected function setCreated(int $created)
+    protected function setCreated(?int $created = null)
     {
         $this->created = $created;
         return $this;
@@ -252,10 +301,10 @@ class Instance
     /**
      * Sets the truncated hash of the creator's IP address
      *
-     * @param int $ipHash
+     * @param string|null $ipHash
      * @return self
      */
-    protected function setIpHash(string $ipHash)
+    protected function setIpHash(?string $ipHash = null)
     {
         $this->ipHash = $ipHash;
         return $this;
@@ -264,7 +313,7 @@ class Instance
     /**
      * Sets the random instance name in the URL
      *
-     * @param int $name
+     * @param string $name
      * @return self
      */
     protected function setName(string $name)
