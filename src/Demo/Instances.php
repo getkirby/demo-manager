@@ -241,7 +241,7 @@ class Instances
             $target = min($num, $instanceLimit - $countActive);
         } else {
             $target = min(
-                max($countActive * 0.1, 15),   // 10 % of active, minimum 15
+                max($countActive * 0.1, 10),   // 10 % of active, minimum 10
                 $instanceLimit * 0.1,          // but not more than 10 % of limit
                 $instanceLimit - $countActive  // and never go over the limit
             );

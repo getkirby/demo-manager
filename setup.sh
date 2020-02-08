@@ -37,7 +37,7 @@ ln -s /var/www/virtual/$USER/demo/public /var/www/virtual/$USER/html
 # Cronjobs: Cleanup every 10 minutes, prepare every 5 minutes, collect stats twice an hour
 cron="MAILTO=\"lukas@getkirby.com\"
 */10 * * * * /var/www/virtual/$USER/demo/bin/demo_cleanup
-*/5 * * * * /var/www/virtual/$USER/demo/bin/demo_prepare
+* * * * * /var/www/virtual/$USER/demo/bin/demo_prepare
 28,58 * * * * /var/www/virtual/$USER/demo/bin/demo_stats --csv >> /var/www/virtual/$USER/demo/data/stats.csv"
 (crontab -l; echo "$cron") | crontab -
 
