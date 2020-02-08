@@ -70,10 +70,10 @@ class Demo
      */
     public function build(): void
     {
-        // check if building is configured
+        // check if building is enabled
         $url = $this->config()->templateUrl();
         if (is_string($url) !== true) {
-            throw new Exception('Template URL that is required for building is not configured');
+            throw new Exception('The template URL that is required for building is not configured');
         }
 
         // prevent that new instances are created
@@ -83,7 +83,7 @@ class Demo
         // recursively delete the whole old template directory
         Dir::remove($this->config()->root() . '/data/template');
 
-        // initialize the template with the Demokit
+        // initialize the template from ZIP
         $root = $this->config()->root() . '/data/template';
         $this->downloadZip(
             Str::before($url, '#'),
@@ -91,7 +91,7 @@ class Demo
             $root
         );
 
-        // run the post-install hook of the Demokit
+        // run the post-build hook if defined
         $this->runHook($root, 'build:after');
 
         // delete all prepared instances (they are now outdated)
@@ -110,10 +110,10 @@ class Demo
      */
     public function cleanup(): void
     {
-        foreach ($this->instances()->all() as $instance) {
-            if ($instance->hasExpired() === true) {
-                $instance->delete();
-            }
+        $expired = $this->instances()->all()->filterBy('hasExpired', '==', true);
+
+        foreach ($expired as $instance) {
+            $instance->delete();
         }
     }
 
@@ -195,7 +195,7 @@ class Demo
     }
 
     /**
-     * Renders a HTTP response for a given path
+     * Renders an HTTP response for a given path
      *
      * @param string|null $path Request path, defaults to the current one
      * @param string|null $method Request method, defaults to the current one
@@ -204,7 +204,7 @@ class Demo
     public function render(?string $path = null, ?string $method = null)
     {
         $request = new Request();
-        $uri     = Uri::current();
+        $uri     = $request->url();
 
         // automatically detect the request path and method if not given
         if ($path === null) {
@@ -247,7 +247,7 @@ class Demo
 
                 return Response::redirect($instance->url(), 302);
             } elseif ($path === '') {
-                // homepage, redirect to index page
+                // homepage, render the index page redirect or custom response
 
                 return $this->config()->indexResponse($this);
             } elseif ($path === 'stats') {
@@ -259,7 +259,7 @@ class Demo
 
                 $webhookSecret = $this->config()->webhookSecret();
                 if (is_string($webhookSecret) !== true) {
-                    return new Response('Webhook secret is not configured', 'text/plain', 403);
+                    return new Response('Webhook secret is not configured', 'text/plain', 500);
                 }
 
                 try {
@@ -293,7 +293,7 @@ class Demo
     /**
      * Runs a hook on an instance or the template
      *
-     * @param string $root Root of the template/instance
+     * @param string $root Root directory of the template/instance
      * @param string $type Hook type
      * @param mixed ...$args Additional hook arguments
      * @return void
@@ -304,7 +304,7 @@ class Demo
 
         if (isset($buildConfig[$type]) === true && $buildConfig[$type] instanceof Closure) {
             $previousDir = getcwd();
-            chdir($this->config()->root() . '/data/template');
+            chdir($root);
 
             $buildConfig[$type]($this, ...$args);
 

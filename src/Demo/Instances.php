@@ -2,8 +2,8 @@
 
 namespace Kirby\Demo;
 
-use Kirby\Exception\Exception;
 use Kirby\Database\Database;
+use Kirby\Exception\Exception;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\Str;
 
@@ -261,18 +261,19 @@ class Instances
         $sequence  = $this->database->table('sqlite_sequence');
         $instances = $this->database->table('instances');
         $all       = $this->all()->sortBy('created', SORT_ASC);
+        $allActive = $all->filterBy('isPrepared', '==', false);
 
         // collect stats
         $numTotal    = $sequence->select('SEQ')->first();
-        $numActive   = $all->filterBy('isPrepared', '==', false)->count();
-        $numExpired  = $all->filterBy('hasExpired', '==', true)->count();
+        $numActive   = $allActive->count();
+        $numExpired  = $allActive->filterBy('hasExpired', '==', true)->count();
         $numPrepared = $all->filterBy('isPrepared', '==', true)->count();
         $numClients  = (int)$this->database
                                 ->query('SELECT COUNT(DISTINCT ipHash) as num FROM instances')
                                 ->first()->num();
         $clientAvg   = ($numClients > 0)? $numActive / $numClients : null;
-        $oldest      = $all->first();
-        $latest      = $all->last();
+        $oldest      = $allActive->first();
+        $latest      = $allActive->last();
 
         // determine the health status and report it to find potential bugs;
         // ordered by severity!
@@ -281,10 +282,7 @@ class Instances
             $status = 'CRITICAL:overload';
         } elseif ($numActive >= $this->demo()->config()->instanceLimit() * 0.7) {
             $status = 'WARN:overload-nearing';
-        } elseif (
-            $oldest && $oldest->isPrepared() === false &&
-            time() - $oldest->created() > $this->demo()->config()->expiryAbsolute() + 30 * 60
-        ) {
+        } elseif ($oldest && time() - $oldest->created() > $this->demo()->config()->expiryAbsolute() + 30 * 60) {
             $status = 'WARN:too-old-expired';
         } elseif ($numActive > 0 && $numExpired / $numActive > 0.2 && $numExpired > 10) {
             $status = 'WARN:too-many-expired';
@@ -300,8 +298,8 @@ class Instances
             'numClients'  => $numClients,
             'numPrepared' => $numPrepared,
             'clientAvg'   => $clientAvg,
-            'oldest'      => ($oldest && $oldest->isPrepared() === false)? date('r', $oldest->created()) : null,
-            'latest'      => ($latest && $latest->isPrepared() === false)? date('r', $latest->created()) : null
+            'oldest'      => ($oldest)? date('r', $oldest->created()) : null,
+            'latest'      => ($latest)? date('r', $latest->created()) : null
         ];
     }
 

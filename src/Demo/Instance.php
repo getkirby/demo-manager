@@ -23,7 +23,7 @@ class Instance
     /**
      * Timestamp when the instance was created
      *
-     * @var int
+     * @var int|null
      */
     protected $created;
 
@@ -44,7 +44,7 @@ class Instance
     /**
      * Truncated hash of the creator's IP address
      *
-     * @var string
+     * @var string|null
      */
     protected $ipHash;
 
@@ -178,10 +178,10 @@ class Instance
     /**
      * Converts an expiry timestamp into a human-readable duration
      *
-     * @param int $timestamp
+     * @param int|null $timestamp
      * @return string|null
      */
-    protected static function expiryTimeToHuman(int $timestamp): ?string
+    protected static function expiryTimeToHuman(?int $timestamp): ?string
     {
         if ($timestamp === null) {
             return null;
@@ -215,8 +215,8 @@ class Instance
         }
 
         $this->instances->update($this->id, [
-            'created' => time(),
-            'ipHash'  => Instances::ipHash()
+            'created' => $this->created = time(),
+            'ipHash'  => $this->ipHash  = Instances::ipHash()
         ]);
     }
 

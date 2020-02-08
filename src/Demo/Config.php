@@ -81,7 +81,7 @@ class Config
     protected $templateUrl;
 
     /**
-     * Configured secret for the GitHub webhook
+     * Secret for the GitHub webhook
      *
      * @var string|null
      */
@@ -155,7 +155,7 @@ class Config
     protected function setIndexResponse($indexResponse)
     {
         if (is_string($indexResponse) !== true && !($indexResponse instanceof Closure)) {
-            throw new InvalidArgumentException('indexResponse needs to be string or Closure');
+            throw new InvalidArgumentException('indexResponse needs to be a string or Closure');
         }
 
         $this->indexResponse = $indexResponse;
@@ -220,7 +220,7 @@ class Config
     protected function setStatusResponse($statusResponse)
     {
         if (is_string($statusResponse) !== true && !($statusResponse instanceof Closure)) {
-            throw new InvalidArgumentException('statusResponse needs to be string or Closure');
+            throw new InvalidArgumentException('statusResponse needs to be a string or Closure');
         }
 
         $this->statusResponse = $statusResponse;
@@ -244,7 +244,7 @@ class Config
     }
 
     /**
-     * Sets the configured secret for the GitHub webhook
+     * Sets the secret for the GitHub webhook
      *
      * @param string|null $webhookSecret
      * @return self
