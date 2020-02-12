@@ -267,7 +267,10 @@ class Demo
                     $body = $request->body()->contents();
                     $expected = hash_hmac('sha1', $body, $webhookSecret);
                     $signature = $request->header('X-Hub-Signature');
-                    if (hash_equals('sha1=' . $expected, $signature) !== true) {
+                    if (
+                        is_string($signature) !== true ||
+                        hash_equals('sha1=' . $expected, $signature) !== true
+                    ) {
                         return new Response('Invalid body signature', 'text/plain', 403);
                     }
 
