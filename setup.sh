@@ -6,7 +6,7 @@ echo -e "bastian@getkirby.com\nlukas@getkirby.com" > ~/.qmail
 # Configure the web server
 # ------------------------
 
-uberspace web domain add demo.getkirby.com
+uberspace web domain add trykirby.com
 uberspace tools version use php 7.4
 uberspace web log php_error enable
 
@@ -30,7 +30,7 @@ rm composer-setup.php
 # Setup the Demo tool
 # -------------------
 
-git clone https://github.com/getkirby/demo.getkirby.com /var/www/virtual/$USER/demo
+git clone https://github.com/getkirby/demo-manager /var/www/virtual/$USER/demo
 rmdir /var/www/virtual/$USER/html
 ln -s /var/www/virtual/$USER/demo/public /var/www/virtual/$USER/html
 

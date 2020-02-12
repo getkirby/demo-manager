@@ -1,6 +1,6 @@
 {
-    "name": "getkirby/demo.getkirby.com",
-    "description": "Demo manager at https://demo.getkirby.com",
+    "name": "getkirby/demo-manager",
+    "description": "Demo manager at https://trykirby.com",
     "type": "project",
     "license": "MIT",
     "authors": [

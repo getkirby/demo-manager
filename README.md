@@ -1,6 +1,6 @@
 # Kirby Demo Manager
 
-The Kirby Demo Manager powers the Kirby demo at <https://demo.getkirby.com>.
+The Kirby Demo Manager powers the Kirby demo at <https://trykirby.com>.
 
 ## License
 
