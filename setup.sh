@@ -34,13 +34,23 @@ git clone https://github.com/getkirby/demo-manager /var/www/virtual/$USER/demo
 rmdir /var/www/virtual/$USER/html
 ln -s /var/www/virtual/$USER/demo/public /var/www/virtual/$USER/html
 
-# Cronjobs: Cleanup every 10 minutes, prepare every 5 minutes, collect stats twice an hour
+mkdir /var/www/virtual/$USER/demo/public/_media
+
+# Setup cronjobs
+# --------------
+
+# Clean up instances every 10 minutes, prepare every 5 minutes,
+# collect stats twice an hour, clean up media daily
 cron="MAILTO=\"lukas@getkirby.com\"
 */10 * * * * /var/www/virtual/$USER/demo/bin/demo_cleanup
 * * * * * /var/www/virtual/$USER/demo/bin/demo_prepare
-28,58 * * * * /var/www/virtual/$USER/demo/bin/demo_stats --csv >> /var/www/virtual/$USER/demo/data/stats.csv"
+28,58 * * * * /var/www/virtual/$USER/demo/bin/demo_stats --csv >> /var/www/virtual/$USER/demo/data/stats.csv
+12 2 * * * /var/www/virtual/$USER/demo/data/template/bin/cleanup"
 (crontab -l; echo "$cron") | crontab -
 
 # Helpful aliases
+# ---------------
+
 ln -s /var/www/virtual/$USER/demo ~/demo
+echo 'export EDITOR="nano"' >> ~/.bashrc
 echo 'export PATH="$PATH:/var/www/virtual/$USER/demo/bin"' >> ~/.bashrc
