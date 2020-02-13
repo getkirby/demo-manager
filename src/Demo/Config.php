@@ -27,7 +27,14 @@ class Config
      *
      * @var string
      */
-    protected $activityDirectory;
+    protected $activityDirectory = '';
+
+    /**
+     * Optional custom config data for the instances
+     *
+     * @var array
+     */
+    protected $custom = [];
 
     /**
      * Absolute expiration time based on the instance creation time in seconds
@@ -149,9 +156,20 @@ class Config
      * @param string $activityDirectory
      * @return self
      */
-    public function setActivityDirectory(string $activityDirectory = '')
+    protected function setActivityDirectory(string $activityDirectory = '')
     {
         $this->activityDirectory = $activityDirectory;
+        return $this;
+    }
+
+    /**
+     * Sets the optional custom config data for the instances
+     *
+     * @param array $custom
+     */
+    protected function setCustom(array $custom = [])
+    {
+        $this->custom = $custom;
         return $this;
     }
 
