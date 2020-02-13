@@ -226,9 +226,6 @@ class Instance
             'created' => $this->created = time(),
             'ipHash'  => $this->ipHash  = Instances::ipHash()
         ]);
-
-        // update the expiry time
-        touch($this->root() . '/content');
     }
 
     /**
@@ -292,7 +289,17 @@ class Instance
             return $this->lastActivity = 0;
         }
 
-        return $this->lastActivity = Dir::modified($this->root() . '/' . $activityDirectory);
+        // get the modified timestamp of the most recently
+        // updated file inside the activity directory
+        $lastActivity = Dir::modified($this->root() . '/' . $activityDirectory);
+
+        // it can never be older than the creation date
+        // (important for prepared instances)
+        if ($this->created !== null && $lastActivity < $this->created) {
+            $lastActivity = $this->created;
+        }
+
+        return $this->lastActivity = $lastActivity;
     }
 
     /**
