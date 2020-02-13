@@ -286,6 +286,12 @@ class Instance
         }
 
         $activityDirectory = $this->instances->demo()->config()->activityDirectory();
+
+        // ensure that the directory (still) exists before trying to access it
+        if (is_dir($activityDirectory) !== true) {
+            return $this->lastActivity = 0;
+        }
+
         return $this->lastActivity = Dir::modified($this->root() . '/' . $activityDirectory);
     }
 
