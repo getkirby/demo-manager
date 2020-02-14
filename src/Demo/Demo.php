@@ -319,6 +319,10 @@ class Demo
 
         if (isset($buildConfig[$type]) === true && $buildConfig[$type] instanceof Closure) {
             $previousDir = getcwd();
+            if (is_string($previousDir) !== true) {
+                throw new Exception('Current working directory could not be determined');
+            }
+
             chdir($root);
 
             $buildConfig[$type]($this, ...$args);
