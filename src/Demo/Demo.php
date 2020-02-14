@@ -3,6 +3,7 @@
 namespace Kirby\Demo;
 
 use Closure;
+use Kirby\Data\Json;
 use Kirby\Exception\Exception;
 use Kirby\Http\Cookie;
 use Kirby\Http\Request;
@@ -274,8 +275,19 @@ class Demo
                         return new Response('Invalid body signature', 'text/plain', 403);
                     }
 
+                    // validate that the hook came from the correct repo and branch
+                    $webhookOrigins = $this->config()->webhookOrigins();
+                    if ($webhookOrigins !== null) {
+                        $data = Json::decode($body);
+                        $origin = $data['repository']['full_name'] . '#' . ($data['ref'] ?? 'none');
+
+                        if (in_array($origin, $webhookOrigins) !== true) {
+                            return new Response('Not responsible for repo origin ' . $origin, 'text/plain', 200);
+                        }
+                    }
+
                     $this->build();
-                    return new Response('OK', 'text/plain', 200);
+                    return new Response('OK', 'text/plain', 201);
                 } catch (\Throwable $e) {
                     error_log($e);
                     return new Response((string)$e, 'text/plain', 500);

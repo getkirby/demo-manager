@@ -96,6 +96,15 @@ class Config
     protected $templateUrl;
 
     /**
+     * List of allowed repo origins for the GitHub webhook
+     * of the format <org>/<repo>#ref/heads/<branch>;
+     * if null, all origins are allowed
+     *
+     * @var array|null
+     */
+    protected $webhookOrigins;
+
+    /**
      * Secret for the GitHub webhook
      *
      * @var string|null
@@ -279,6 +288,20 @@ class Config
         }
 
         $this->templateUrl = $templateUrl;
+        return $this;
+    }
+
+    /**
+     * Sets the list of allowed repo origins for the GitHub
+     * webhook of the format <org>/<repo>#ref/heads/<branch>;
+     * if null, all origins are allowed
+     *
+     * @param array|null $webhookOrigins
+     * @return self
+     */
+    protected function setWebhookOrigins(?array $webhookOrigins = null)
+    {
+        $this->webhookOrigins = $webhookOrigins;
         return $this;
     }
 
