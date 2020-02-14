@@ -283,15 +283,16 @@ class Instance
         }
 
         $activityDirectory = $this->instances->demo()->config()->activityDirectory();
+        $activityPath      = $this->root() . '/' . $activityDirectory;
 
         // ensure that the directory (still) exists before trying to access it
-        if (is_dir($activityDirectory) !== true) {
+        if (is_dir($activityPath) !== true) {
             return $this->lastActivity = 0;
         }
 
         // get the modified timestamp of the most recently
         // updated file inside the activity directory
-        $lastActivity = Dir::modified($this->root() . '/' . $activityDirectory);
+        $lastActivity = Dir::modified($activityPath);
 
         // it can never be older than the creation date
         // (important for prepared instances)
