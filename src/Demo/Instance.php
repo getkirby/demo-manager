@@ -304,6 +304,16 @@ class Instance
     }
 
     /**
+     * Returns the random instance name in the URL
+     *
+     * @return string
+     */
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * Returns the instance's filesystem root
      *
      * @return string
