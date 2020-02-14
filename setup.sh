@@ -7,6 +7,7 @@ echo -e "bastian@getkirby.com\nlukas@getkirby.com" > ~/.qmail
 # ------------------------
 
 uberspace web domain add trykirby.com
+uberspace web domain add staging.trykirby.com
 uberspace tools version use php 7.4
 uberspace web log php_error enable
 
@@ -34,7 +35,11 @@ git clone https://github.com/getkirby/demo-manager /var/www/virtual/$USER/demo
 rmdir /var/www/virtual/$USER/html
 ln -s /var/www/virtual/$USER/demo/public /var/www/virtual/$USER/html
 
+git clone https://github.com/getkirby/demo-manager /var/www/virtual/$USER/demo_staging
+ln -s /var/www/virtual/$USER/demo_staging/public /var/www/virtual/$USER/staging.trykirby.com
+
 mkdir /var/www/virtual/$USER/demo/public/_media
+mkdir /var/www/virtual/$USER/demo_staging/public/_media
 
 # Setup cronjobs
 # --------------
@@ -43,6 +48,7 @@ mkdir /var/www/virtual/$USER/demo/public/_media
 # collect stats twice an hour, clean up media daily
 cron="MAILTO=\"lukas@getkirby.com\"
 */10 * * * * /var/www/virtual/$USER/demo/bin/demo_cleanup
+*/10 * * * * /var/www/virtual/$USER/demo_staging/bin/demo_cleanup
 * * * * * /var/www/virtual/$USER/demo/bin/demo_prepare
 28,58 * * * * /var/www/virtual/$USER/demo/bin/demo_stats --csv >> /var/www/virtual/$USER/demo/data/stats.csv
 12 2 * * * /var/www/virtual/$USER/demo/data/template/bin/cleanup"
@@ -52,5 +58,6 @@ cron="MAILTO=\"lukas@getkirby.com\"
 # ---------------
 
 ln -s /var/www/virtual/$USER/demo ~/demo
+ln -s /var/www/virtual/$USER/demo_staging ~/demo_staging
 echo 'export EDITOR="nano"' >> ~/.bashrc
 echo 'export PATH="$PATH:/var/www/virtual/$USER/demo/bin"' >> ~/.bashrc
