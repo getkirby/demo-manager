@@ -141,7 +141,7 @@ class Demo
         // download the ZIP to a temporary file
         $download = fopen($url, 'r');
         $tmp = tmpfile();
-        if (stream_copy_to_stream($download, $tmp) === false) {
+        if ($download === false || stream_copy_to_stream($download, $tmp) === false) {
             throw new Exception('Could not download ZIP from ' . $url);
         }
 
