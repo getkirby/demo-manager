@@ -143,7 +143,7 @@ class Instances
         // create the actual instance
         $root = $this->demo()->config()->root() . '/public/' . $name;
         exec(
-            'cp -r ' .
+            'cp -a ' .
             escapeshellarg($this->demo()->config()->root() . '/data/template') . ' ' .
             escapeshellarg($root),
             $output,
