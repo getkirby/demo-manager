@@ -22,12 +22,12 @@ class Config
     use Properties;
 
     /**
-     * Directory in the demo that is checked for user activity;
+     * Path in the demo that is checked for user activity;
      * defaults to the index directory (not recommended, potentially slow)
      *
      * @var string
      */
-    protected $activityDirectory = '';
+    protected $activityPath = '';
 
     /**
      * Optional custom config data for the instances
@@ -159,15 +159,15 @@ class Config
     }
 
     /**
-     * Sets the directory in the demo that is checked for user activity;
+     * Sets the path in the demo that is checked for user activity;
      * defaults to the index directory (not recommended, potentially slow)
      *
-     * @param string $activityDirectory
+     * @param string $activityPath
      * @return self
      */
-    protected function setActivityDirectory(string $activityDirectory = '')
+    protected function setActivityPath(string $activityPath = '')
     {
-        $this->activityDirectory = $activityDirectory;
+        $this->activityPath = $activityPath;
         return $this;
     }
 

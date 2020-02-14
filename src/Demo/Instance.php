@@ -282,17 +282,17 @@ class Instance
             return $this->lastActivity;
         }
 
-        $activityDirectory = $this->instances->demo()->config()->activityDirectory();
-        $activityPath      = $this->root() . '/' . $activityDirectory;
+        $activityPath = $this->instances->demo()->config()->activityPath();
+        $activityRoot = $this->root() . '/' . $activityPath;
 
         // ensure that the directory (still) exists before trying to access it
-        if (is_dir($activityPath) !== true) {
+        if (file_exists($activityRoot) !== true) {
             return $this->lastActivity = 0;
         }
 
         // get the modified timestamp of the most recently
         // updated file inside the activity directory
-        $lastActivity = Dir::modified($activityPath);
+        $lastActivity = Dir::modified($activityRoot);
 
         // it can never be older than the creation date
         // (important for prepared instances)
