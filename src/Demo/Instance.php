@@ -117,8 +117,12 @@ class Instance
      */
     public function delete(): void
     {
+        $this->instances->demo()->runHook($this->root(), 'delete:before', $this);
+
         Dir::remove($this->root());
         $this->instances->delete($this->id);
+
+        $this->instances->demo()->runHook($this->root(), 'delete:after', $this);
     }
 
     /**

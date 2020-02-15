@@ -33,6 +33,13 @@ class Demo
     protected $config;
 
     /**
+     * Cache of build config data per file
+     *
+     * @var array
+     */
+    protected $buildFileCache = [];
+
+    /**
      * Instance manager object
      *
      * @var \Kirby\Demo\Instances
@@ -315,7 +322,12 @@ class Demo
      */
     public function runHook($root, $type, ...$args): void
     {
-        $buildConfig = @include($root . '/.build.php') ?? [];
+        $file = $root . '/.build.php';
+        if (isset($this->buildFileCache[$file]) === true) {
+            $buildConfig = $this->buildFileCache[$file];
+        } else {
+            $this->buildFileCache[$file] = $buildConfig = @include($file) ?? [];
+        }
 
         if (isset($buildConfig[$type]) === true && $buildConfig[$type] instanceof Closure) {
             $previousDir = getcwd();
