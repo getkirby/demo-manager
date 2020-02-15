@@ -51,7 +51,8 @@ cron="MAILTO=\"lukas@getkirby.com\"
 */10 * * * * /var/www/virtual/$USER/demo_staging/bin/demo_cleanup
 * * * * * /var/www/virtual/$USER/demo/bin/demo_prepare
 28,58 * * * * /var/www/virtual/$USER/demo/bin/demo_stats --csv >> /var/www/virtual/$USER/demo/data/stats.csv
-12 2 * * * /var/www/virtual/$USER/demo/data/template/bin/cleanup"
+12 2 * * * /var/www/virtual/$USER/demo/data/template/bin/cleanup
+13 2 * * * /var/www/virtual/$USER/demo_staging/data/template/bin/cleanup"
 (crontab -l; echo "$cron") | crontab -
 
 # Helpful aliases
