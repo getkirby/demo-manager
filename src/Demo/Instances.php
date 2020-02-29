@@ -295,6 +295,8 @@ class Instances
             $status = 'WARN:too-many-expired';
         } elseif ($clientAvg && $clientAvg > $this->demo()->config()->maxInstancesPerClient()) {
             $status = 'WARN:too-many-per-client';
+        } elseif ($numPrepared < 3) {
+            $status = 'WARN:too-few-prepared';
         }
 
         return [
