@@ -65,7 +65,8 @@ class Config
     protected $instanceLimit = 300;
 
     /**
-     * Maximum number of simultaneous demo instances per client
+     * Maximum number of simultaneous demo instances per client;
+     * 0 to disable the check (for debugging)
      *
      * @var int
      */

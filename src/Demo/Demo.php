@@ -244,7 +244,10 @@ class Demo
 
                 // check if the current IP address already has too many active instances
                 $countCurrentClient = $this->instances()->count(['ipHash' => Instances::ipHash()]);
-                if ($countCurrentClient >= $this->config()->maxInstancesPerClient()) {
+                if (
+                    $this->config()->maxInstancesPerClient() > 0 &&
+                    $countCurrentClient >= $this->config()->maxInstancesPerClient()
+                ) {
                     return $this->config()->statusResponse($this, 'error', 'rate-limit');
                 }
 
