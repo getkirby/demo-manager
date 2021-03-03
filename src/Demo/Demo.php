@@ -251,7 +251,11 @@ class Demo
                 $instance = $this->instances()->create();
 
                 // create a cookie for the next request
-                Cookie::set('instance', $instance->url(), ['lifetime' => $this->config()->expiryAbsolute() / 60]);
+                Cookie::set('instance', $instance->url(), [
+                    'lifetime' => $this->config()->expiryAbsolute() / 60,
+                    'secure'   => true,
+                    'sameSite' => 'None'
+                ]);
 
                 return Response::redirect($instance->url(), 302);
             } elseif ($path === '') {
