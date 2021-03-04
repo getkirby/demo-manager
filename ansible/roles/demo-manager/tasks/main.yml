@@ -1,0 +1,47 @@
+---
+- name: Ensure that the Demo Manager tools are in $PATH
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
+    line: 'export PATH="$PATH:$HOME/demo/bin"'
+
+- name: Set up and update Git repo
+  ansible.builtin.git:
+    repo: https://github.com/getkirby/demo-manager.git
+    dest: "{{ ansible_facts.env.HOME }}/demo"
+  notify: Demo Build
+
+- name: Define git pull behavior
+  community.general.git_config:
+    repo: "{{ ansible_facts.env.HOME }}/demo"
+    scope: local
+    name: pull.ff
+    value: only
+
+- name: Install Composer dependencies
+  community.general.composer:
+    command: install
+    working_dir: "{{ ansible_facts.env.HOME }}/demo"
+  notify: Demo Build
+
+- name: Link webroot
+  ansible.builtin.file:
+    src: "{{ ansible_facts.env.HOME }}/demo/public"
+    dest: "{{ ansible_facts.env.HOME }}/current"
+    force: yes # delete the existing directory at ~/current
+    state: link
+
+- name: Initialize data directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/demo/data"
+    state: directory
+
+- name: Install config.php
+  ansible.builtin.copy:
+    src: config.{{ group_names[0] }}.php
+    dest: "{{ ansible_facts.env.HOME }}/demo/data/config.php"
+  notify: Demo Build
+
+- name: Initialize _media directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/demo/public/_media"
+    state: directory
