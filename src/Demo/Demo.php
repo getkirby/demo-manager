@@ -100,7 +100,7 @@ class Demo
         );
 
         // run the post-build hook if defined
-        $this->runHook($root, 'build:after');
+        $this->runHook($root, 'build:after', $this);
 
         // delete all prepared instances (they are now outdated)
         foreach ($this->instances()->all('ipHash IS NULL') as $instance) {
