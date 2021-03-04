@@ -112,7 +112,8 @@ class Demo
     }
 
     /**
-     * Cleans up all expired instances
+     * Cleans up all expired instances and executes
+     * the cleanup hook of the template
      *
      * @return void
      */
@@ -123,6 +124,8 @@ class Demo
         foreach ($expired as $instance) {
             $instance->delete();
         }
+
+        $this->runHook($this->config()->root() . '/data/template', 'cleanup', $this);
     }
 
     /**
