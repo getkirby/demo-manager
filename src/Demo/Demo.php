@@ -325,9 +325,9 @@ class Demo
      * @param string $root Root directory of the template/instance
      * @param string $type Hook type
      * @param mixed ...$args Additional hook arguments
-     * @return void
+     * @return mixed
      */
-    public function runHook($root, $type, ...$args): void
+    public function runHook($root, $type, ...$args)
     {
         $file = $root . '/.hooks.php';
         if (isset($this->buildFileCache[$file]) === true) {
@@ -336,6 +336,7 @@ class Demo
             $this->buildFileCache[$file] = $buildConfig = @include($file) ?? [];
         }
 
+        $result = null;
         if (isset($buildConfig[$type]) === true && $buildConfig[$type] instanceof Closure) {
             $previousDir = getcwd();
             if (is_string($previousDir) !== true) {
@@ -344,10 +345,12 @@ class Demo
 
             chdir($root);
 
-            $buildConfig[$type]($this, ...$args);
+            $result = $buildConfig[$type]($this, ...$args);
 
             chdir($previousDir);
         }
+
+        return $result;
     }
 
     /**
