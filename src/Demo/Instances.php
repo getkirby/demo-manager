@@ -144,7 +144,7 @@ class Instances
         $root = $this->demo()->config()->root() . '/public/' . $name;
         exec(
             'cp -a ' .
-            escapeshellarg($this->demo()->config()->root() . '/data/template') . ' ' .
+            escapeshellarg($this->demo()->config()->templateRoot()) . ' ' .
             escapeshellarg($root),
             $output,
             $return
@@ -299,7 +299,7 @@ class Instances
             $status = 'WARN:too-few-prepared';
         } else {
             $templateStatus = $this->demo()->runHook(
-                $this->demo()->config()->root() . '/data/template',
+                $this->demo()->config()->templateRoot(),
                 'status',
                 $this->demo()
             );

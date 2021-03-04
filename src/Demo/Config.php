@@ -160,6 +160,16 @@ class Config
     }
 
     /**
+     * Returns the root where the template is stored
+     *
+     * @return string
+     */
+    public function templateRoot(): string
+    {
+        return $this->root . '/data/template';
+    }
+
+    /**
      * Sets the path in the demo that is checked for user activity;
      * defaults to the index directory (not recommended, potentially slow)
      *

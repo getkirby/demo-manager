@@ -66,7 +66,7 @@ class Demo
         Dir::make($this->config()->root() . '/data');
 
         // ensure that there is a valid build for us to use
-        if (is_dir($this->config()->root() . '/data/template') !== true) {
+        if (is_dir($this->config()->templateRoot()) !== true) {
             $this->build();
         }
     }
@@ -89,10 +89,10 @@ class Demo
         $this->lock()->acquireExclusiveLock();
 
         // recursively delete the whole old template directory
-        Dir::remove($this->config()->root() . '/data/template');
+        Dir::remove($this->config()->templateRoot());
 
         // initialize the template from ZIP
-        $root = $this->config()->root() . '/data/template';
+        $root = $this->config()->templateRoot();
         $this->downloadZip(
             Str::before($url, '#'),
             Str::after($url, '#'),
@@ -125,7 +125,7 @@ class Demo
             $instance->delete();
         }
 
-        $this->runHook($this->config()->root() . '/data/template', 'cleanup', $this);
+        $this->runHook($this->config()->templateRoot(), 'cleanup', $this);
     }
 
     /**
@@ -364,7 +364,7 @@ class Demo
     public function stats(): array
     {
         $stats = $this->instances()->stats();
-        $stats['lastBuild'] = date('r', filemtime($this->config()->root() . '/data/template'));
+        $stats['lastBuild'] = date('r', filemtime($this->config()->templateRoot()));
 
         return $stats;
     }
