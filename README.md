@@ -4,7 +4,7 @@ The Kirby Demo Manager powers the Kirby demo at <https://trykirby.com>.
 
 ## Installation and usage
 
-1. Create a template repo. The contents of that repository will be set up for each demo user. You can customize the demo build with a `.build.php` file at the root of your template repo. Our own template repo is the [Kirby Demokit](https://github.com/getkirby/demokit).
+1. Create a template repo. The contents of that repository will be set up for each demo user. You can customize the demo build with a `.hooks.php` file at the root of your template repo. Our own template repo is the [Kirby Demokit](https://github.com/getkirby/demokit).
 2. Clone the `demo-manager` repository to a directory that can be accessed by your webserver.
 3. Install the Composer dependencies with `composer install`.
 4. Create an empty `data` directory inside the `demo-manager` and create a `config.php` file within it. You can find all configuration options in the [source code](src/Demo/Config.php). The bare minimum are the following options:

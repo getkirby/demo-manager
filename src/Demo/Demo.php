@@ -329,7 +329,7 @@ class Demo
      */
     public function runHook($root, $type, ...$args): void
     {
-        $file = $root . '/.build.php';
+        $file = $root . '/.hooks.php';
         if (isset($this->buildFileCache[$file]) === true) {
             $buildConfig = $this->buildFileCache[$file];
         } else {
