@@ -27,36 +27,26 @@ class Demo
 {
 	/**
 	 * Config object
-	 *
-	 * @var \Kirby\Demo\Config
 	 */
-	protected $config;
+	protected Config $config;
 
 	/**
 	 * Cache of build config data per file
-	 *
-	 * @var array
 	 */
-	protected $buildFileCache = [];
+	protected array $buildFileCache = [];
 
 	/**
 	 * Instance manager object
-	 *
-	 * @var \Kirby\Demo\Instances
 	 */
-	protected $instances;
+	protected Instances $instances;
 
 	/**
 	 * Lock manager object
-	 *
-	 * @var \Kirby\Demo\Lock
 	 */
-	protected $lock;
+	protected Lock $lock;
 
 	/**
 	 * Class constructor
-	 *
-	 * @param array $props
 	 */
 	public function __construct(array $props = [])
 	{
@@ -73,8 +63,6 @@ class Demo
 
 	/**
 	 * Builds the instance template from scratch
-	 *
-	 * @return void
 	 */
 	public function build(): void
 	{
@@ -114,8 +102,6 @@ class Demo
 	/**
 	 * Cleans up all expired instances and executes
 	 * the cleanup hook of the template
-	 *
-	 * @return void
 	 */
 	public function cleanup(): void
 	{
@@ -130,10 +116,8 @@ class Demo
 
 	/**
 	 * Returns the config object
-	 *
-	 * @return \Kirby\Demo\Config
 	 */
-	public function config()
+	public function config(): Config
 	{
 		return $this->config;
 	}
@@ -144,7 +128,6 @@ class Demo
 	 * @param string $url Download URL
 	 * @param string $dir Expected directory name of the ZIP's main directory
 	 * @param string $path Destination path
-	 * @return void
 	 */
 	protected function downloadZip(string $url, string $dir, string $path): void
 	{
@@ -179,20 +162,16 @@ class Demo
 
 	/**
 	 * Returns the instance manager
-	 *
-	 * @return \Kirby\Demo\Instances
 	 */
-	public function instances()
+	public function instances(): Instances
 	{
 		return $this->instances ??= new Instances($this);
 	}
 
 	/**
 	 * Returns the lock manager
-	 *
-	 * @return \Kirby\Demo\Lock
 	 */
-	public function lock()
+	public function lock(): Lock
 	{
 		return $this->lock ??= new Lock($this);
 	}
@@ -202,9 +181,8 @@ class Demo
 	 *
 	 * @param string|null $path Request path, defaults to the current one
 	 * @param string|null $method Request method, defaults to the current one
-	 * @return \Kirby\Http\Response
 	 */
-	public function render(?string $path = null, ?string $method = null)
+	public function render(string|null $path = null, string|null $method = null): Response
 	{
 		$request = new Request();
 		$uri     = $request->url();
@@ -316,9 +294,8 @@ class Demo
 	 * @param string $root Root directory of the template/instance
 	 * @param string $type Hook type
 	 * @param mixed ...$args Additional hook arguments
-	 * @return mixed
 	 */
-	public function runHook($root, $type, ...$args)
+	public function runHook(string $root, string $type, ...$args)
 	{
 		$file = $root . '/.hooks.php';
 		if (isset($this->buildFileCache[$file]) === true) {
@@ -346,8 +323,6 @@ class Demo
 
 	/**
 	 * Returns the stats for debugging
-	 *
-	 * @return array
 	 */
 	public function stats(): array
 	{

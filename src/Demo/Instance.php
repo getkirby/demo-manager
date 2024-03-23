@@ -22,50 +22,36 @@ class Instance
 
 	/**
 	 * Timestamp when the instance was created
-	 *
-	 * @var int|null
 	 */
-	protected $created;
+	protected int|null $created;
 
 	/**
 	 * Automatically incrementing instance ID
-	 *
-	 * @var int
 	 */
-	protected $id;
+	protected int $id;
 
 	/**
 	 * Instances object this instance is from
-	 *
-	 * @var \Kirby\Demo\Instances
 	 */
-	protected $instances;
+	protected Instances $instances;
 
 	/**
 	 * Truncated hash of the creator's IP address
-	 *
-	 * @var string|null
 	 */
-	protected $ipHash;
+	protected string|null $ipHash;
 
 	/**
 	 * Cache for the last activity timestamp
-	 *
-	 * @var int
 	 */
-	protected $lastActivity;
+	protected int $lastActivity;
 
 	/**
 	 * Random instance name in the URL
-	 *
-	 * @var string
 	 */
-	protected $name;
+	protected string $name;
 
 	/**
 	 * Class constructor
-	 *
-	 * @param array $props
 	 */
 	public function __construct(array $props = [])
 	{
@@ -74,20 +60,16 @@ class Instance
 
 	/**
 	 * Returns the timestamp when the instance was created
-	 *
-	 * @return int|null
 	 */
-	public function created(): ?int
+	public function created(): int|null
 	{
 		return $this->created;
 	}
 
 	/**
 	 * Returns the human-readable instance creation time
-	 *
-	 * @return string|null
 	 */
-	public function createdHuman(): ?string
+	public function createdHuman(): string|null
 	{
 		$created = $this->created();
 		if ($created === null) {
@@ -112,8 +94,6 @@ class Instance
 
 	/**
 	 * Deletes the current instance
-	 *
-	 * @return void
 	 */
 	public function delete(): void
 	{
@@ -127,10 +107,8 @@ class Instance
 
 	/**
 	 * Returns the timestamp when this instance will expire
-	 *
-	 * @return int|null
 	 */
-	public function expiry(): ?int
+	public function expiry(): int|null
 	{
 		$demo    = $this->instances->demo();
 		$created = $this->created();
@@ -151,20 +129,16 @@ class Instance
 
 	/**
 	 * Returns the human-readable duration when this instance will expire
-	 *
-	 * @return string|null
 	 */
-	public function expiryHuman(): ?string
+	public function expiryHuman(): string|null
 	{
 		return static::expiryTimeToHuman($this->expiry());
 	}
 
 	/**
 	 * Returns the timestamp when this instance will definitely expire
-	 *
-	 * @return int|null
 	 */
-	public function expiryMax(): ?int
+	public function expiryMax(): int|null
 	{
 		$created = $this->created();
 		if ($created === null) {
@@ -178,21 +152,16 @@ class Instance
 
 	/**
 	 * Returns the human-readable duration when this instance will definitely expire
-	 *
-	 * @return string|null
 	 */
-	public function expiryMaxHuman(): ?string
+	public function expiryMaxHuman(): string|null
 	{
 		return static::expiryTimeToHuman($this->expiryMax());
 	}
 
 	/**
 	 * Converts an expiry timestamp into a human-readable duration
-	 *
-	 * @param int|null $timestamp
-	 * @return string|null
 	 */
-	protected static function expiryTimeToHuman(?int $timestamp): ?string
+	protected static function expiryTimeToHuman(int|null $timestamp): string|null
 	{
 		if ($timestamp === null) {
 			return null;
@@ -216,8 +185,6 @@ class Instance
 
 	/**
 	 * Grabs a prepared instance by assigning it to the current IP address
-	 *
-	 * @return void
 	 */
 	public function grab(): void
 	{
@@ -234,8 +201,6 @@ class Instance
 
 	/**
 	 * Checks if the instance has expired
-	 *
-	 * @return bool
 	 */
 	public function hasExpired(): bool
 	{
@@ -247,8 +212,6 @@ class Instance
 	/**
 	 * Checks if there was any activity in this instance
 	 * within the last five minutes
-	 *
-	 * @return bool
 	 */
 	public function isHot(): bool
 	{
@@ -257,8 +220,6 @@ class Instance
 
 	/**
 	 * Checks if the instance is only prepared
-	 *
-	 * @return bool
 	 */
 	public function isPrepared(): bool
 	{
@@ -267,22 +228,18 @@ class Instance
 
 	/**
 	 * Returns the truncated hash of the creator's IP address
-	 *
-	 * @return string|null
 	 */
-	public function ipHash(): ?string
+	public function ipHash(): string|null
 	{
 		return $this->ipHash;
 	}
 
 	/**
 	 * Returns the timestamp of the last activity inside the instance
-	 *
-	 * @return int
 	 */
 	public function lastActivity(): int
 	{
-		if ($this->lastActivity) {
+		if (isset($this->lastActivity)) {
 			return $this->lastActivity;
 		}
 
@@ -309,8 +266,6 @@ class Instance
 
 	/**
 	 * Returns the random instance name in the URL
-	 *
-	 * @return string
 	 */
 	public function name(): string
 	{
@@ -319,8 +274,6 @@ class Instance
 
 	/**
 	 * Returns the instance's filesystem root
-	 *
-	 * @return string
 	 */
 	public function root(): string
 	{
@@ -329,11 +282,8 @@ class Instance
 
 	/**
 	 * Sets the timestamp when the instance was created
-	 *
-	 * @param int|null $created
-	 * @return self
 	 */
-	protected function setCreated(?int $created = null)
+	protected function setCreated(int|null $created = null): static
 	{
 		$this->created = $created;
 		return $this;
@@ -341,11 +291,8 @@ class Instance
 
 	/**
 	 * Sets the automatically incrementing instance ID
-	 *
-	 * @param int $id
-	 * @return self
 	 */
-	protected function setId(int $id)
+	protected function setId(int $id): static
 	{
 		$this->id = $id;
 		return $this;
@@ -353,11 +300,8 @@ class Instance
 
 	/**
 	 * Sets the Instances object this instance is from
-	 *
-	 * @param \Kirby\Demo\Instances $instances
-	 * @return self
 	 */
-	protected function setInstances(Instances $instances)
+	protected function setInstances(Instances $instances): static
 	{
 		$this->instances = $instances;
 		return $this;
@@ -365,11 +309,8 @@ class Instance
 
 	/**
 	 * Sets the truncated hash of the creator's IP address
-	 *
-	 * @param string|null $ipHash
-	 * @return self
 	 */
-	protected function setIpHash(?string $ipHash = null)
+	protected function setIpHash(string|null $ipHash = null): static
 	{
 		$this->ipHash = $ipHash;
 		return $this;
@@ -377,11 +318,8 @@ class Instance
 
 	/**
 	 * Sets the random instance name in the URL
-	 *
-	 * @param string $name
-	 * @return self
 	 */
-	protected function setName(string $name)
+	protected function setName(string $name): static
 	{
 		$this->name = $name;
 		return $this;
@@ -389,8 +327,6 @@ class Instance
 
 	/**
 	 * Returns the instance's URL
-	 *
-	 * @return string
 	 */
 	public function url(): string
 	{

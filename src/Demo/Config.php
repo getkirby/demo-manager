@@ -24,98 +24,72 @@ class Config
 	/**
 	 * Path in the demo that is checked for user activity;
 	 * defaults to the index directory (not recommended, potentially slow)
-	 *
-	 * @var string
 	 */
-	protected $activityPath = '';
+	protected string $activityPath = '';
 
 	/**
 	 * Optional custom config data for the instances
-	 *
-	 * @var array
 	 */
-	protected $custom = [];
+	protected array $custom = [];
 
 	/**
 	 * Absolute expiration time based on the instance creation time in seconds
-	 *
-	 * @var int
 	 */
-	protected $expiryAbsolute = 3 * 60 * 60;
+	protected int $expiryAbsolute = 3 * 60 * 60;
 
 	/**
 	 * Inactivity expiration time based on content changes in seconds
-	 *
-	 * @var int
 	 */
-	protected $expiryInactivity = 60 * 60;
+	protected int $expiryInactivity = 60 * 60;
 
 	/**
 	 * URL to redirect to or response callback for the index page
-	 *
-	 * @var string|\Closure
 	 */
-	protected $indexResponse;
+	protected string|Closure $indexResponse;
 
 	/**
 	 * Absolute maximum number of simultaneously active instances
-	 *
-	 * @var integer
 	 */
-	protected $instanceLimit = 300;
+	protected int $instanceLimit = 300;
 
 	/**
 	 * Maximum number of simultaneous demo instances per client;
 	 * 0 to disable the check (for debugging)
-	 *
-	 * @var int
 	 */
-	protected $maxInstancesPerClient = 2;
+	protected int $maxInstancesPerClient = 2;
 
 	/**
 	 * Application root
-	 *
-	 * @var string
 	 */
-	protected $root;
+	protected string $root;
 
 	/**
 	 * URL to redirect to or response callback for the status page;
 	 * accepts the placeholders {{ type }} and {{ status }}
-	 *
-	 * @var string|\Closure
 	 */
-	protected $statusResponse;
+	protected string|Closure $statusResponse;
 
 	/**
 	 * URL of the ZIP file that will be downloaded as the template;
 	 * example: `https://example.com/test.zip#test` will extract the
 	 * `test` directory from the `test.zip` file
-	 *
-	 * @var string|null
 	 */
-	protected $templateUrl;
+	protected string|null $templateUrl;
 
 	/**
 	 * List of allowed repo origins for the GitHub webhook
 	 * of the format <org>/<repo>#ref/heads/<branch>;
 	 * if null, all origins are allowed
-	 *
-	 * @var array|null
 	 */
-	protected $webhookOrigins;
+	protected array|null $webhookOrigins;
 
 	/**
 	 * Secret for the GitHub webhook
-	 *
-	 * @var string|null
 	 */
-	protected $webhookSecret;
+	protected string|null $webhookSecret;
 
 	/**
 	 * Class constructor
-	 *
-	 * @param array $props
 	 */
 	public function __construct(array $props = [])
 	{
@@ -134,10 +108,6 @@ class Config
 
 	/**
 	 * Magic caller to access all properties
-	 *
-	 * @param string $property
-	 * @param array $arguments
-	 * @return mixed
 	 */
 	public function __call(string $property, array $arguments = [])
 	{
@@ -146,11 +116,8 @@ class Config
 
 	/**
 	 * Returns the response for the index page
-	 *
-	 * @param \Kirby\Demo\Demo $demo App instance
-	 * @return \Kirby\Http\Response
 	 */
-	public function indexResponse($demo)
+	public function indexResponse(Demo $demo): Response
 	{
 		if (is_string($this->indexResponse) === true) {
 			return Response::redirect($this->indexResponse, 302);
@@ -161,8 +128,6 @@ class Config
 
 	/**
 	 * Returns the root where the template is stored
-	 *
-	 * @return string
 	 */
 	public function templateRoot(): string
 	{
@@ -172,11 +137,8 @@ class Config
 	/**
 	 * Sets the path in the demo that is checked for user activity;
 	 * defaults to the index directory (not recommended, potentially slow)
-	 *
-	 * @param string $activityPath
-	 * @return self
 	 */
-	protected function setActivityPath(string $activityPath = '')
+	protected function setActivityPath(string $activityPath = ''): static
 	{
 		$this->activityPath = $activityPath;
 		return $this;
@@ -184,10 +146,8 @@ class Config
 
 	/**
 	 * Sets the optional custom config data for the instances
-	 *
-	 * @param array $custom
 	 */
-	protected function setCustom(array $custom = [])
+	protected function setCustom(array $custom = []): static
 	{
 		$this->custom = $custom;
 		return $this;
@@ -197,9 +157,8 @@ class Config
 	 * Sets the absolute expiration time based on the instance creation time
 	 *
 	 * @param int $expiryAbsolute Time in seconds
-	 * @return self
 	 */
-	protected function setExpiryAbsolute(int $expiryAbsolute)
+	protected function setExpiryAbsolute(int $expiryAbsolute): static
 	{
 		$this->expiryAbsolute = $expiryAbsolute;
 		return $this;
@@ -207,11 +166,8 @@ class Config
 
 	/**
 	 * Sets the URL to redirect to or response callback for the index page
-	 *
-	 * @param string|\Closure $indexResponse
-	 * @return self
 	 */
-	protected function setIndexResponse($indexResponse)
+	protected function setIndexResponse(string|Closure $indexResponse): static
 	{
 		if (is_string($indexResponse) !== true && !($indexResponse instanceof Closure)) {
 			throw new InvalidArgumentException('indexResponse needs to be a string or Closure');
@@ -223,11 +179,8 @@ class Config
 
 	/**
 	 * Sets the absolute maximum number of simultaneously active instances
-	 *
-	 * @param int $instanceLimit
-	 * @return self
 	 */
-	protected function setInstanceLimit(int $instanceLimit)
+	protected function setInstanceLimit(int $instanceLimit): static
 	{
 		$this->instanceLimit = $instanceLimit;
 		return $this;
@@ -237,9 +190,8 @@ class Config
 	 * Sets the inactivity expiration time based on content changes
 	 *
 	 * @param int $expiryInactivity Time in seconds
-	 * @return self
 	 */
-	protected function setExpiryInactivity(int $expiryInactivity)
+	protected function setExpiryInactivity(int $expiryInactivity): static
 	{
 		$this->expiryInactivity = $expiryInactivity;
 		return $this;
@@ -247,11 +199,8 @@ class Config
 
 	/**
 	 * Sets the maximum number of simultaneous demo instances per client
-	 *
-	 * @param int $maxInstancesPerClient
-	 * @return self
 	 */
-	protected function setMaxInstancesPerClient(int $maxInstancesPerClient)
+	protected function setMaxInstancesPerClient(int $maxInstancesPerClient): static
 	{
 		$this->maxInstancesPerClient = $maxInstancesPerClient;
 		return $this;
@@ -259,11 +208,8 @@ class Config
 
 	/**
 	 * Sets the application root
-	 *
-	 * @param string|null $root
-	 * @return self
 	 */
-	protected function setRoot(string $root = null)
+	protected function setRoot(string|null $root = null): static
 	{
 		$this->root = $root ?? dirname(dirname(__DIR__));
 		return $this;
@@ -272,11 +218,8 @@ class Config
 	/**
 	 * Sets the URL to redirect to or response callback for the status page;
 	 * accepts the placeholders {{ type }} and {{ status }}
-	 *
-	 * @param string|\Closure $statusResponse
-	 * @return self
 	 */
-	protected function setStatusResponse($statusResponse)
+	protected function setStatusResponse(string|Closure $statusResponse): static
 	{
 		if (is_string($statusResponse) !== true && !($statusResponse instanceof Closure)) {
 			throw new InvalidArgumentException('statusResponse needs to be a string or Closure');
@@ -288,11 +231,8 @@ class Config
 
 	/**
 	 * Sets the URL of the ZIP file that will be downloaded as the template
-	 *
-	 * @param string $templateUrl
-	 * @return self
 	 */
-	protected function setTemplateUrl(?string $templateUrl = null)
+	protected function setTemplateUrl(string|null $templateUrl = null): static
 	{
 		if (is_string($templateUrl) === true && Str::contains($templateUrl, '#') !== true) {
 			throw new InvalidArgumentException('templateUrl needs to include the directory name after a # sign');
@@ -306,11 +246,8 @@ class Config
 	 * Sets the list of allowed repo origins for the GitHub
 	 * webhook of the format <org>/<repo>#ref/heads/<branch>;
 	 * if null, all origins are allowed
-	 *
-	 * @param array|null $webhookOrigins
-	 * @return self
 	 */
-	protected function setWebhookOrigins(?array $webhookOrigins = null)
+	protected function setWebhookOrigins(array|null $webhookOrigins = null): static
 	{
 		$this->webhookOrigins = $webhookOrigins;
 		return $this;
@@ -318,11 +255,8 @@ class Config
 
 	/**
 	 * Sets the secret for the GitHub webhook
-	 *
-	 * @param string|null $webhookSecret
-	 * @return self
 	 */
-	protected function setWebhookSecret(?string $webhookSecret = null)
+	protected function setWebhookSecret(string|null $webhookSecret = null): static
 	{
 		$this->webhookSecret = $webhookSecret;
 		return $this;
@@ -330,13 +264,8 @@ class Config
 
 	/**
 	 * Returns the response for the status page
-	 *
-	 * @param \Kirby\Demo\Demo $demo App instance
-	 * @param string $type
-	 * @param string $status
-	 * @return \Kirby\Http\Response
 	 */
-	public function statusResponse($demo, $type, $status)
+	public function statusResponse(Demo $demo, string $type, string $status): Response
 	{
 		if (is_string($this->statusResponse) === true) {
 			$url = Str::template($this->statusResponse, compact('type', 'status'));

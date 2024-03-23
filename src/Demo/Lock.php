@@ -18,10 +18,8 @@ class Lock
 {
 	/**
 	 * App instance
-	 *
-	 * @var \Kirby\Demo\Demo
 	 */
-	protected $demo;
+	protected Demo $demo;
 
 	/**
 	 * File handle of the file used for locking
@@ -32,8 +30,6 @@ class Lock
 
 	/**
 	 * Class constructor
-	 *
-	 * @param \Kirby\Demo\Demo $demo
 	 */
 	public function __construct(Demo $demo)
 	{
@@ -56,8 +52,6 @@ class Lock
 	/**
 	 * Acquires an exclusive lock
 	 * (so that only one thread can build the template)
-	 *
-	 * @return void
 	 */
 	public function acquireExclusiveLock(): void
 	{
@@ -68,7 +62,6 @@ class Lock
 	 * Acquires a custom lock
 	 *
 	 * @param int $operation Operation for flock()
-	 * @return void
 	 */
 	public function acquireLock(int $operation): void
 	{
@@ -80,8 +73,6 @@ class Lock
 	/**
 	 * Acquires a shared lock
 	 * (so that multiple threads can create instances)
-	 *
-	 * @return void
 	 */
 	public function acquireSharedLock(): void
 	{
@@ -90,8 +81,6 @@ class Lock
 
 	/**
 	 * Releases the active lock
-	 *
-	 * @return void
 	 */
 	public function releaseLock(): void
 	{

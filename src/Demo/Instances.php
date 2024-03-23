@@ -4,6 +4,7 @@ namespace Kirby\Demo;
 
 use Kirby\Database\Database;
 use Kirby\Exception\Exception;
+use Kirby\Toolkit\Collection;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\Str;
 
@@ -20,22 +21,16 @@ class Instances
 {
 	/**
 	 * App instance
-	 *
-	 * @var \Kirby\Demo\Demo
 	 */
-	protected $demo;
+	protected Demo $demo;
 
 	/**
 	 * Database connection to the SQLite DB
-	 *
-	 * @var \Kirby\Database\Database
 	 */
-	protected $database;
+	protected Database $database;
 
 	/**
 	 * Class constructor
-	 *
-	 * @param \Kirby\Demo\Demo $demo
 	 */
 	public function __construct(Demo $demo)
 	{
@@ -65,9 +60,9 @@ class Instances
 	 * Returns all currently active instances or a filtered subset
 	 *
 	 * @param ...mixed Optional WHERE clause
-	 * @return \Kirby\Toolkit\Collection Collection of \Kirby\Demo\Instance objects
+	 * @return \Kirby\Toolkit\Collection Collection of `\Kirby\Demo\Instance` objects
 	 */
-	public function all()
+	public function all(): Collection
 	{
 		$query = $this->database->table('instances')->fetch(function ($props) {
 			$props['instances'] = $this;
@@ -86,7 +81,6 @@ class Instances
 	 * optionally filtered by a WHERE clause
 	 *
 	 * @param ...mixed Optional WHERE clause
-	 * @return int
 	 */
 	public function count(): int
 	{
@@ -103,9 +97,8 @@ class Instances
 	 * Creates a new instance
 	 *
 	 * @param bool $prepare Whether the instance should be created in prepare mode
-	 * @return \Kirby\Demo\Instance
 	 */
-	public function create(bool $prepare = false)
+	public function create(bool $prepare = false): Instance
 	{
 		// ensure that no other instance is created while we
 		// determine ours
@@ -167,10 +160,8 @@ class Instances
 
 	/**
 	 * Finds the currently running instance by URL
-	 *
-	 * @return \Kirby\Demo\Instance|null
 	 */
-	public function current()
+	public function current(): Instance|null
 	{
 		$path = Str::before(ltrim($_SERVER['REQUEST_URI'], '/'), '/');
 		return $this->get(['name' => $path]);
@@ -178,9 +169,6 @@ class Instances
 
 	/**
 	 * Deletes a specified instance from the database
-	 *
-	 * @param int $id Instance ID
-	 * @return void
 	 */
 	public function delete(int $id): void
 	{
@@ -189,10 +177,8 @@ class Instances
 
 	/**
 	 * Returns the app instance
-	 *
-	 * @return \Kirby\Demo\Demo
 	 */
-	public function demo()
+	public function demo(): Demo
 	{
 		return $this->demo;
 	}
@@ -201,17 +187,14 @@ class Instances
 	 * Returns the first instance matching a WHERE clause
 	 *
 	 * @param ...mixed WHERE clause
-	 * @return \Kirby\Demo\Instance
 	 */
-	public function get()
+	public function get(): Instance|null
 	{
 		return $this->all(...func_get_args())->first();
 	}
 
 	/**
 	 * Returns the IP address hash of the current client
-	 *
-	 * @return string
 	 */
 	public static function ipHash(): string
 	{
@@ -225,9 +208,8 @@ class Instances
 	 * Ensures that the right number of instances are prepared
 	 *
 	 * @param int|null $num Custom number of instances to prepare; defaults to auto
-	 * @return void
 	 */
-	public function prepare(?int $num = null): void
+	public function prepare(int|null $num = null): void
 	{
 		$instanceLimit = $this->demo()->config()->instanceLimit();
 
@@ -258,8 +240,6 @@ class Instances
 
 	/**
 	 * Returns the stats for debugging
-	 *
-	 * @return array
 	 */
 	public function stats(): array
 	{
@@ -328,7 +308,6 @@ class Instances
 	 *
 	 * @param int $id Instance ID
 	 * @param array $values Data to update in the database
-	 * @return void
 	 */
 	public function update(int $id, array $values): void
 	{
