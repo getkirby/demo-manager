@@ -72,7 +72,8 @@ class Config
 	/**
 	 * URL of the ZIP file that will be downloaded as the template;
 	 * example: `https://example.com/test.zip#test` will extract the
-	 * `test` directory from the `test.zip` file
+	 * `test` directory from the `test.zip` file;
+	 * accepts the placeholder {{ buildId }}
 	 */
 	protected string|null $templateUrl;
 
@@ -230,7 +231,8 @@ class Config
 	}
 
 	/**
-	 * Sets the URL of the ZIP file that will be downloaded as the template
+	 * Sets the URL of the ZIP file that will be downloaded as the template;
+	 * accepts the placeholder {{ buildId }}
 	 */
 	protected function setTemplateUrl(string|null $templateUrl = null): static
 	{

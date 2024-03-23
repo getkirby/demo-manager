@@ -64,13 +64,16 @@ class Demo
 	/**
 	 * Builds the instance template from scratch
 	 */
-	public function build(): void
+	public function build(string|null $buildId = null): void
 	{
 		// check if building is enabled
 		$url = $this->config()->templateUrl();
 		if (is_string($url) !== true) {
 			throw new Exception('The template URL that is required for building is not configured');
 		}
+
+		// replace build ID param (default to `main` branch if commit is not known)
+		$url = Str::template($url, ['buildId' => $buildId ?? 'main']);
 
 		// prevent that new instances are created
 		// while the template is being rebuilt
@@ -88,7 +91,7 @@ class Demo
 		);
 
 		// run the post-build hook if defined
-		$this->runHook($root, 'build:after');
+		$this->runHook($root, 'build:after', $buildId ?? uniqid());
 
 		// delete all prepared instances (they are now outdated)
 		foreach ($this->instances()->all('ipHash IS NULL') as $instance) {
@@ -269,7 +272,7 @@ class Demo
 						}
 					}
 
-					$this->build();
+					$this->build($data['after']);
 					return new Response('OK', 'text/plain', 201);
 				} catch (\Throwable $e) {
 					error_log($e);
