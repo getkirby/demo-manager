@@ -274,7 +274,7 @@ class Config
 
 			return Response::redirect($url, 302);
 		} else {
-			return call_user_func($this->indexResponse, $demo, $type, $status);
+			return call_user_func($this->statusResponse, $demo, $type, $status);
 		}
 	}
 }
