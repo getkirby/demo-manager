@@ -20,7 +20,7 @@ use ZipArchive;
  * @package   Kirby Demo
  * @author    Lukas Bestle <lukas@getkirby.com>
  * @link      https://getkirby.com
- * @copyright Bastian Allgeier GmbH
+ * @copyright Bastian Allgeier
  * @license   https://opensource.org/licenses/MIT
  */
 class Demo
