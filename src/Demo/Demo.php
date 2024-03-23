@@ -50,7 +50,7 @@ class Demo
 	 */
 	public function __construct(array $props = [])
 	{
-		$this->config = new Config($props);
+		$this->config = Config::instance($props);
 
 		// ensure that the data directory is present
 		Dir::make($this->config()->root() . '/data');

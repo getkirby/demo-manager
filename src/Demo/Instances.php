@@ -66,7 +66,7 @@ class Instances
 	{
 		$query = $this->database->table('instances')->fetch(function ($props) {
 			$props['instances'] = $this;
-			return new Instance($props);
+			return new Instance(...$props);
 		});
 
 		if (func_num_args() > 0) {
@@ -148,7 +148,7 @@ class Instances
 
 		$props['id'] = $id;
 		$props['instances'] = $this;
-		$instance = new Instance($props);
+		$instance = new Instance(...$props);
 
 		$this->demo()->runHook($root, 'create:after', $instance);
 

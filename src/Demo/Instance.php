@@ -5,7 +5,6 @@ namespace Kirby\Demo;
 use Kirby\Exception\Exception;
 use Kirby\Http\Uri;
 use Kirby\Toolkit\Dir;
-use Kirby\Toolkit\Properties;
 
 /**
  * A single demo instance
@@ -18,44 +17,40 @@ use Kirby\Toolkit\Properties;
  */
 class Instance
 {
-	use Properties;
-
 	/**
-	 * Timestamp when the instance was created
-	 */
-	protected int|null $created;
-
-	/**
-	 * Automatically incrementing instance ID
-	 */
-	protected int $id;
-
-	/**
-	 * Instances object this instance is from
-	 */
-	protected Instances $instances;
-
-	/**
-	 * Truncated hash of the creator's IP address
-	 */
-	protected string|null $ipHash;
-
-	/**
-	 * Cache for the last activity timestamp
-	 */
+	* Cache for the last activity timestamp
+	*/
 	protected int $lastActivity;
-
-	/**
-	 * Random instance name in the URL
-	 */
-	protected string $name;
 
 	/**
 	 * Class constructor
 	 */
-	public function __construct(array $props = [])
-	{
-		$this->setProperties($props);
+	public function __construct(
+		/**
+		 * Timestamp when the instance was created
+		 */
+		protected int|null $created,
+
+		/**
+		 * Automatically incrementing instance ID
+		 */
+		protected int $id,
+
+		/**
+		 * Instances object this instance is from
+		 */
+		protected Instances $instances,
+
+		/**
+		 * Truncated hash of the creator's IP address
+		 */
+		protected string|null $ipHash,
+
+		/**
+		 * Random instance name in the URL
+		 */
+		protected string $name,
+	) {
 	}
 
 	/**
@@ -278,51 +273,6 @@ class Instance
 	public function root(): string
 	{
 		return $this->instances->demo()->config()->root() . '/public/' . $this->name;
-	}
-
-	/**
-	 * Sets the timestamp when the instance was created
-	 */
-	protected function setCreated(int|null $created = null): static
-	{
-		$this->created = $created;
-		return $this;
-	}
-
-	/**
-	 * Sets the automatically incrementing instance ID
-	 */
-	protected function setId(int $id): static
-	{
-		$this->id = $id;
-		return $this;
-	}
-
-	/**
-	 * Sets the Instances object this instance is from
-	 */
-	protected function setInstances(Instances $instances): static
-	{
-		$this->instances = $instances;
-		return $this;
-	}
-
-	/**
-	 * Sets the truncated hash of the creator's IP address
-	 */
-	protected function setIpHash(string|null $ipHash = null): static
-	{
-		$this->ipHash = $ipHash;
-		return $this;
-	}
-
-	/**
-	 * Sets the random instance name in the URL
-	 */
-	protected function setName(string $name): static
-	{
-		$this->name = $name;
-		return $this;
 	}
 
 	/**
