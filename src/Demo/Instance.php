@@ -66,25 +66,7 @@ class Instance
 	 */
 	public function createdHuman(): string|null
 	{
-		$created = $this->created();
-		if ($created === null) {
-			return null;
-		}
-
-		$seconds = time() - $this->created();
-		$hours   = (int)floor($seconds / 3600);
-		$minutes = (int)round(($seconds / 60) % 60);
-
-		if ($seconds < 60) {
-			return $seconds . (($seconds === 1)? ' second' : ' seconds');
-		}
-
-		$string = '';
-		if ($seconds >= 3600) {
-			$string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
-		}
-
-		return $string . $minutes . (($minutes === 1)? ' minute' : ' minutes');
+		return static::timeToHuman($this->created(), expiry: false);
 	}
 
 	/**
@@ -105,21 +87,16 @@ class Instance
 	 */
 	public function expiry(): int|null
 	{
-		$demo    = $this->instances->demo();
-		$created = $this->created();
-
-		if ($created === null) {
+		$expiryMax = $this->expiryMax();
+		if ($expiryMax === null) {
 			return null;
 		}
 
-		// absolute expiration based on the creation time
-		$absoluteExpiry = $created + $demo->config()->expiryAbsolute();
-
 		// inactivity expiration based on content changes
-		$inactivityExpiry = $this->lastActivity() + $demo->config()->expiryInactivity();
+		$expiryActivity = $this->lastActivity() + $this->instances->demo()->config()->expiryInactivity();
 
 		// return the shorter time of the two
-		return min($absoluteExpiry, $inactivityExpiry);
+		return min($expiryMax, $expiryActivity);
 	}
 
 	/**
@@ -127,7 +104,7 @@ class Instance
 	 */
 	public function expiryHuman(): string|null
 	{
-		return static::expiryTimeToHuman($this->expiry());
+		return static::timeToHuman($this->expiry(), expiry: true);
 	}
 
 	/**
@@ -150,28 +127,37 @@ class Instance
 	 */
 	public function expiryMaxHuman(): string|null
 	{
-		return static::expiryTimeToHuman($this->expiryMax());
+		return static::timeToHuman($this->expiryMax(), expiry: true);
 	}
 
 	/**
-	 * Converts an expiry timestamp into a human-readable duration
+	 * Converts a timestamp into a human-readable duration
+	 *
+	 * @param bool $expiry If set to `true`, a timestamp in the past returns "any time now"
 	 */
-	protected static function expiryTimeToHuman(int|null $timestamp): string|null
+	protected static function timeToHuman(int|null $timestamp, bool $expiry): string|null
 	{
 		if ($timestamp === null) {
 			return null;
 		}
 
-		$expiry  = $timestamp - time();
-		$hours   = (int)floor($expiry / 3600);
-		$minutes = (int)round(($expiry / 60) % 60);
+		$diff    = $timestamp - time();
+		$isPast  = $diff <= 0;
+		$seconds = abs($diff);
+		$hours   = floor($seconds / 3600);
+		$minutes = round($seconds / 60) % 60;
 
-		if ($expiry <= 0) {
+		if ($expiry === true && $isPast === true) {
 			return 'any time now';
 		}
 
-		$string = 'in ';
-		if ($expiry >= 3600) {
+		$string = $isPast === false ? 'in ' : '';
+
+		if ($seconds < 60) {
+			return $string . $seconds . (($seconds === 1)? ' second' : ' seconds');
+		}
+
+		if ($seconds >= 3600) {
 			$string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
 		}
 
