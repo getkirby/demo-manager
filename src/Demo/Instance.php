@@ -141,14 +141,21 @@ class Instance
 			return null;
 		}
 
-		$diff    = $timestamp - time();
-		$isPast  = $diff <= 0;
-		$seconds = abs($diff);
-		$hours   = floor($seconds / 3600);
-		$minutes = round($seconds / 60) % 60;
+		$diff   = $timestamp - time();
+		$isPast = $diff <= 0;
 
 		if ($expiry === true && $isPast === true) {
 			return 'any time now';
+		}
+
+		$seconds = abs($diff);
+		$minutes = round($seconds / 60) % 60;
+		$hours   = (int)floor($seconds / 3600);
+
+		// round up to the hour in the last 30 seconds of the minute
+		if ($seconds % 3600 >= 3570) {
+			$hours  += 1;
+			$minutes = 0;
 		}
 
 		$string = $isPast === false ? 'in ' : '';
@@ -157,8 +164,15 @@ class Instance
 			return $string . $seconds . (($seconds === 1)? ' second' : ' seconds');
 		}
 
-		if ($seconds >= 3600) {
-			$string .= $hours . (($hours === 1)? ' hour and ' : ' hours and ');
+		if ($hours >= 1) {
+			$string .= $hours . (($hours === 1)? ' hour' : ' hours');
+
+			// full hour without minutes
+			if ($minutes === 0) {
+				return $string;
+			}
+
+			$string .= ' and ';
 		}
 
 		return $string . $minutes . (($minutes === 1)? ' minute' : ' minutes');
