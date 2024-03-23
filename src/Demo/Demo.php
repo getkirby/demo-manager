@@ -184,11 +184,7 @@ class Demo
 	 */
 	public function instances()
 	{
-		if (!$this->instances) {
-			$this->instances = new Instances($this);
-		}
-
-		return $this->instances;
+		return $this->instances ??= new Instances($this);
 	}
 
 	/**
@@ -198,11 +194,7 @@ class Demo
 	 */
 	public function lock()
 	{
-		if (!$this->lock) {
-			$this->lock = new Lock($this);
-		}
-
-		return $this->lock;
+		return $this->lock ??= new Lock($this);
 	}
 
 	/**
@@ -218,12 +210,8 @@ class Demo
 		$uri     = $request->url();
 
 		// automatically detect the request path and method if not given
-		if ($path === null) {
-			$path = (string)$uri->path();
-		}
-		if ($method === null) {
-			$method = $request->method();
-		}
+		$path   ??= (string)$uri->path();
+		$method ??= $request->method();
 
 		try {
 			if ($path === '' && $method === 'POST') {
