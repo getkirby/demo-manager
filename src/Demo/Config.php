@@ -123,7 +123,7 @@ class Config
 		$props['root'] ??= dirname(dirname(__DIR__));
 
 		// load custom config (optional)
-		$config = @include_once($props['root'] . '/data/config.php');
+		$config = @include($props['root'] . '/data/config.php');
 		if (is_array($config) !== true) {
 			$config = [];
 		}
