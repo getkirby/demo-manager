@@ -251,7 +251,7 @@ class Instance
 		$lastActivity = Dir::modified($activityRoot);
 
 		// it can never be older than the creation date
-		// (important for prepared instances)
+		// (important for instances that were prepared before the creation)
 		if ($this->created !== null && $lastActivity < $this->created) {
 			$lastActivity = $this->created;
 		}

@@ -12,6 +12,7 @@ use Kirby\Http\Uri;
 use Kirby\Toolkit\Dir;
 use Kirby\Toolkit\F;
 use Kirby\Toolkit\Str;
+use Throwable;
 use ZipArchive;
 
 /**
@@ -80,10 +81,10 @@ class Demo
 		$this->lock()->acquireExclusiveLock();
 
 		// recursively delete the whole old template directory
-		Dir::remove($this->config()->templateRoot());
+		$root = $this->config()->templateRoot();
+		Dir::remove($root);
 
 		// initialize the template from ZIP
-		$root = $this->config()->templateRoot();
 		$this->downloadZip(
 			Str::before($url, '#'),
 			Str::after($url, '#'),
@@ -136,31 +137,32 @@ class Demo
 	{
 		// download the ZIP to a temporary file
 		$download = fopen($url, 'r');
-		$tmp = tmpfile();
-		if ($download === false || stream_copy_to_stream($download, $tmp) === false) {
+		$tmpFile = tmpfile();
+		if ($download === false || stream_copy_to_stream($download, $tmpFile) === false) {
 			throw new Exception('Could not download ZIP from ' . $url);
 		}
 
 		// extract the temporary file
+		$tmpDir = $this->config()->root() . '/data/tmp';
 		$zip = new ZipArchive();
-		if ($zip->open(stream_get_meta_data($tmp)['uri']) !== true) {
+		if ($zip->open(stream_get_meta_data($tmpFile)['uri']) !== true) {
 			throw new Exception('Could not open ZIP from ' . $url);
 		}
-		$zip->extractTo($this->config()->root() . '/data/tmp');
+		$zip->extractTo($tmpDir);
 		$zip->close();
-		fclose($tmp);
+		fclose($tmpFile);
 
 		// move the directory to the final destination
-		if (is_dir($this->config()->root() . '/data/tmp/' . $dir) !== true) {
+		if (is_dir($tmpDir . '/' . $dir) !== true) {
 			throw new Exception('ZIP file ' . $url . ' does not contain directory ' . $dir);
 		}
 		if (file_exists($path) === true) {
 			throw new Exception('Destination ' . $path . ' for ZIP file ' . $url . ' already exists');
 		}
-		rename($this->config()->root() . '/data/tmp/' . $dir, $path);
+		rename($tmpDir . '/' . $dir, $path);
 
 		// delete the temporary directory
-		Dir::remove($this->config()->root() . '/data/tmp');
+		Dir::remove($tmpDir);
 	}
 
 	/**
@@ -274,7 +276,7 @@ class Demo
 
 					$this->build($data['after']);
 					return new Response('OK', 'text/plain', 201);
-				} catch (\Throwable $e) {
+				} catch (Throwable $e) {
 					error_log($e);
 					return new Response((string)$e, 'text/plain', 500);
 				}
@@ -283,7 +285,7 @@ class Demo
 
 				return $this->config()->statusResponse($this, 'error', 'not-found');
 			}
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			// some kind of unhandled error; redirect to the general error page
 
 			error_log($e);
