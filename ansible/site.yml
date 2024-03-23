@@ -1,7 +1,0 @@
----
-- name: Set up the Demo Manager
-  hosts:
-    - staging
-    - production
-  roles:
-    - demo-manager

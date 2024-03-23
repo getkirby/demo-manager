@@ -1,5 +1,0 @@
-[production]
-trykirby.com ansible_user=production
-
-[staging]
-staging.trykirby.com ansible_user=staging

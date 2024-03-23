@@ -1,3 +1,0 @@
----
-- name: Demo Build
-  ansible.builtin.command: "{{ ansible_facts.env.HOME }}/demo/bin/demo_build"
