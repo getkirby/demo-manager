@@ -306,6 +306,7 @@ class Demo
 		if (isset($this->buildFileCache[$file]) === true) {
 			$buildConfig = $this->buildFileCache[$file];
 		} else {
+			opcache_invalidate($file);
 			$this->buildFileCache[$file] = $buildConfig = @include($file) ?? [];
 		}
 
