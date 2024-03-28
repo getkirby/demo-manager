@@ -40,6 +40,7 @@ The configured **index response** (URL or closure) is used to respond to request
 
 The configured **status response** (URL or closure) is used for all kinds of status information. The following combinations of type and status are currently in use:
 
+- `error:referrer` (if the creation request came from an invalid referrer)
 - `error:overload` (if too many active demo instances exist)
 - `error:rate-limit` (if the IP address of the visitor has created too many instances)
 - `error:not-found` (for requests to instances that don't exist or have been deleted)

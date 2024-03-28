@@ -53,6 +53,12 @@ class Config
 		protected string $activityPath = '',
 
 		/**
+		 * Origins that are allowed in the HTTP `Referer` header
+		 * when creating new instances; not checked if not set
+		 */
+		protected array|null $allowedReferrers = null,
+
+		/**
 		 * Optional custom config data for the instances
 		 */
 		protected array $custom = [],

@@ -211,6 +211,18 @@ class Demo
 					}
 				}
 
+				// if a `Referer` header is set, validate it
+				// against the allowlist if one was configured
+				$allowedReferrers = $this->config()->allowedReferrers();
+				$referrer         = $request->header('Referer');
+				if (
+					is_array($allowedReferrers) === true &&
+					empty($referrer) === false &&
+					in_array($referrer, $allowedReferrers) !== true
+				) {
+					return $this->config()->statusResponse($this, 'error', 'referrer');
+				}
+
 				// check if there are too many active instances on this server
 				if ($this->instances()->count() >= $this->config()->instanceLimit()) {
 					return $this->config()->statusResponse($this, 'error', 'overload');
