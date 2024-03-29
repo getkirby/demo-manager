@@ -211,16 +211,13 @@ class Demo
 					}
 				}
 
-				// if a `Referer` header is set, validate it
-				// against the allowlist if one was configured
+				// validate the `Referer` header against the allowlist if one was configured
 				$allowedReferrers = $this->config()->allowedReferrers();
-				$referrer         = $request->header('Referer');
 				if (
 					is_array($allowedReferrers) === true &&
-					empty($referrer) === false &&
-					in_array($referrer, $allowedReferrers) !== true
+					$response = $this->checkReferrer($allowedReferrers, $request->header('Referer'))
 				) {
-					return $this->config()->statusResponse($this, 'error', 'referrer');
+					return $response;
 				}
 
 				// check if there are too many active instances on this server
@@ -348,5 +345,19 @@ class Demo
 		$stats['lastBuild'] = date('r', filemtime($this->config()->templateRoot()));
 
 		return $stats;
+	}
+
+	/**
+	 * Ensures that the referrer matches one of the allowed ones
+	 */
+	protected function checkReferrer(array $allowed, string $referrer): Response|null
+	{
+		foreach ($allowed as $option) {
+			if (Str::startsWith($referrer, $option) === true) {
+				return null;
+			}
+		}
+
+		return $this->config()->statusResponse($this, 'error', 'referrer');
 	}
 }
