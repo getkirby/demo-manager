@@ -19,7 +19,7 @@ return [
 ];
 ```
 
-5. Point your web server at the Demo Manager's `public` directory and ensure that the web server takes each subfolder into account as well by respecting the instances' `index.php` files. For Apache setups this is a given due to `.htaccess`, other servers may need custom config.
+5. Point your web server at the Demo Manager's `public` directory and ensure that the web server takes each subfolder into account as well by respecting the instances' `index.php` files. For Apache setups this is a given due to `.htaccess`, other servers may need custom config (see our [example nginx config](etc/nginx.conf)).
 6. Set up the following cronjobs:
    - `bin/demo_cleanup` (recommendation: every 10 minutes)
    - `bin/demo_prepare` (recommendation: every minute, only in production)
