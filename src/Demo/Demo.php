@@ -284,7 +284,7 @@ class Demo
 					}
 
 					$this->build($data['after']);
-					return new Response('OK', 'text/plain', 201);
+					return new Response('Created build with ID ' . $data['after'], 'text/plain', 201);
 				} catch (Throwable $e) {
 					error_log($e);
 					return new Response((string)$e, 'text/plain', 500);
